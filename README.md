@@ -8,7 +8,7 @@ Artificial Intelligence 2026 — Assignment 1: Uninformed Search Techniques
 | 1 | Social Golfers Problem | Depth First Search (DFS) with Backtracking | Implemented ([docs](docs/social_golfers.md)) |
 | 2 | Sudoku Solver (Easy / Medium / Hard) | Breadth First Search (BFS) with Backtracking | Implemented ([docs](docs/sudoku.md)) |
 | 3 | Latin Square | Iterative Deepening DFS (IDDFS) with Backtracking | Implemented ([docs](docs/latin_square.md)) |
-| 4 | Search Trees: 8-Puzzle, Missionaries and Cannibals, Rotating Workforce Scheduling | Search-tree construction | Planned (Phase 4) |
+| 4 | Search Trees: 8-Puzzle, Missionaries and Cannibals, Rotating Workforce Scheduling | Search-tree construction (BFS / DFS) | Implemented ([docs](docs/search_trees.md)) |
 
 All search algorithms are implemented by hand; no external solver libraries
 are used.
@@ -54,6 +54,13 @@ latin_square/                Problem 3
   objective.py               objective function V(x) + E(x)
   landscape.py               theoretical formulas, literature counts
   report.py, cli.py          text output and command-line options
+search_trees/                Problem 4
+  core.py                    explicit search-tree construction (BFS/DFS, duplicates, statistics)
+  visualization.py           depth-limited text tree and Mermaid diagram
+  report.py, cli.py          statistics output and command-line options
+  eight_puzzle/              8-Puzzle model and validator
+  missionaries_cannibals/    Missionaries and Cannibals model and validator
+  workforce_scheduling/      Rotating Workforce Scheduling model and validator
 tests/                       pytest test suites
 docs/                        detailed documentation per problem
 requirements.txt
@@ -133,6 +140,29 @@ Options of `latin`:
 | `--time-limit` | seconds (0 = unlimited) | 120 |
 | `--hide-iterations` | do not print the per-iteration table | off |
 
+```bash
+python main.py eight-puzzle                                  # default board, BFS
+python main.py eight-puzzle --initial "8 6 7 / 2 5 4 / 3 _ 1" --goal "1 2 3 / 4 5 6 / 7 8 _"
+python main.py missionaries -m 3 -c 3 -b 2 --mermaid tree.md
+python main.py workforce --config my_rules.json
+```
+
+Options shared by `eight-puzzle`, `missionaries` and `workforce`:
+
+| Option | Meaning | Default |
+|---|---|---|
+| `--strategy` | `bfs` or `dfs` | bfs (workforce: dfs) |
+| `--max-depth` | do not expand nodes at this depth | none |
+| `--max-nodes` | limit on tree nodes (0 = unlimited) | 1,000,000 |
+| `--time-limit` | seconds (0 = unlimited) | 60 |
+| `--no-duplicate-detection` | tree search (requires `--max-depth`) | off |
+| `--explore-all` | keep building after the first goal | off |
+| `--tree-depth` / `--tree-nodes` | size of the printed / drawn partial tree | 3 / 40 |
+| `--mermaid FILE` | write a depth-limited Mermaid diagram | — |
+
+Problem options: `eight-puzzle --initial --goal`; `missionaries -m -c -b`;
+`workforce --config FILE.json`.
+
 ## Testing
 
 ```bash
@@ -140,6 +170,7 @@ python -m pytest            # all tests
 python -m pytest -v tests/test_social_golfers.py
 python -m pytest -v tests/test_sudoku.py
 python -m pytest -v tests/test_latin_square.py
+python -m pytest -v tests/test_search_tree_core.py tests/test_eight_puzzle.py tests/test_missionaries_cannibals.py tests/test_workforce_scheduling.py
 ```
 
 ## Problem 1 — Social Golfers Problem
@@ -226,6 +257,24 @@ Measured results (step 1):
 
 Full documentation: [docs/latin_square.md](docs/latin_square.md).
 
+## Problem 4 — Search Trees
+
+One shared engine builds an explicit search tree (node ids, parent-child
+links, actions, depths, statuses: expanded, goal, duplicate, invalid,
+depth-limit, dead end) with BFS or DFS, duplicate detection, limits and
+statistics, and draws depth-limited text and Mermaid views.
+
+| Problem | Model | Measured result |
+|---|---|---|
+| 8-Puzzle | board permutation, blank moves Up/Down/Left/Right, inversion-parity solvability | default: 5-move optimal solution (54 nodes); full space 181,440 boards; hardest instance 31 moves (BFS) vs 40,757 (DFS) |
+| Missionaries and Cannibals | `(m, c, boat)`, loads of 1..K people, safety on both banks; unsafe crossings shown as invalid nodes | 11 crossings; 15 reachable states; 4/4/2 has no solution; 4 optimal solutions in the tree search |
+| Rotating Workforce Scheduling | cyclic base schedule (3 employees × 7 days, shifts D/N/off) with **assumed** rules R1–R6 (demand, forbidden N→D, run lengths, workload, availability) | DFS finds a valid schedule in 82 nodes; 1,864 schedules in total |
+
+Documentation: [overview](docs/search_trees.md), [8-Puzzle](docs/eight_puzzle.md),
+[Missionaries and Cannibals](docs/missionaries_cannibals.md),
+[Rotating Workforce Scheduling](docs/workforce_scheduling.md) (with the list of
+assumptions — the assignment does not define this problem's constraints).
+
 ## Known Limitations
 
 * Social Golfers: for 32 golfers, uninformed DFS finds 5 weeks; the known
@@ -237,3 +286,6 @@ Full documentation: [docs/latin_square.md](docs/latin_square.md).
 * Latin Square: every goal lies at the maximum depth, so all IDDFS iterations
   before the last are exhaustive; the reduced form works up to n = 6, the full
   grid up to n = 5.
+* Search Trees: uninformed BFS/DFS only (no heuristics); the workforce rules
+  are assumptions because the assignment does not specify them; drawings are
+  always depth-limited, partial views of the tree.

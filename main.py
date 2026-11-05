@@ -5,6 +5,9 @@ Usage examples:
     python main.py golfers -g 3 -p 2 --count-solutions
     python main.py sudoku --difficulty hard
     python main.py latin -n 5
+    python main.py eight-puzzle
+    python main.py missionaries
+    python main.py workforce
 """
 
 from __future__ import annotations
@@ -14,6 +17,7 @@ import sys
 
 from social_golfers import cli as golfers_cli
 from latin_square import cli as latin_cli
+from search_trees import cli as trees_cli
 from sudoku import cli as sudoku_cli
 
 
@@ -39,6 +43,18 @@ def build_parser() -> argparse.ArgumentParser:
     )
     latin_cli.add_arguments(latin)
     latin.set_defaults(handler=latin_cli.run)
+
+    for name, help_text, add, run in (
+        ("eight-puzzle", "Search tree: 8-Puzzle",
+         trees_cli.add_eight_puzzle_arguments, trees_cli.run_eight_puzzle),
+        ("missionaries", "Search tree: Missionaries and Cannibals",
+         trees_cli.add_missionaries_arguments, trees_cli.run_missionaries),
+        ("workforce", "Search tree: Rotating Workforce Scheduling",
+         trees_cli.add_workforce_arguments, trees_cli.run_workforce),
+    ):
+        sub = problems.add_parser(name, help=help_text)
+        add(sub)
+        sub.set_defaults(handler=run)
     return parser
 
 

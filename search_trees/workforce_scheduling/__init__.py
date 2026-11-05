@@ -1,0 +1,1 @@
+"""Rotating Workforce Scheduling problem."""
