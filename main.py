@@ -3,6 +3,7 @@
 Usage examples:
     python main.py golfers --groups 8 --size 4
     python main.py golfers -g 3 -p 2 --count-solutions
+    python main.py sudoku --difficulty hard
 """
 
 from __future__ import annotations
@@ -11,6 +12,7 @@ import argparse
 import sys
 
 from social_golfers import cli as golfers_cli
+from sudoku import cli as sudoku_cli
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -23,6 +25,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     golfers_cli.add_arguments(golfers)
     golfers.set_defaults(handler=golfers_cli.run)
+
+    sudoku = problems.add_parser(
+        "sudoku", help="Sudoku solver (BFS with backtracking)"
+    )
+    sudoku_cli.add_arguments(sudoku)
+    sudoku.set_defaults(handler=sudoku_cli.run)
     return parser
 
 
