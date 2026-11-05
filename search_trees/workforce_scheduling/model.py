@@ -56,6 +56,8 @@ def _int(name: str, value: object, minimum: int) -> int:
 
 @dataclass(frozen=True)
 class WorkforceConfig:
+    """Adjustable instance data and rules R1-R6 (all assumptions, see the module docstring)."""
+
     employees: int = 3
     days: int = 7
     shifts: tuple[str, ...] = ("D", "N")
@@ -156,9 +158,6 @@ class RotatingWorkforce:
         """Fill order position -> (row, day): column by column."""
         day, row = divmod(index, self.config.employees)
         return row, day
-
-    def index_of(self, row: int, day: int) -> int:
-        return day * self.config.employees + row
 
     def time_of(self, row: int, day: int) -> int:
         """Position in the cyclic sequence of days."""

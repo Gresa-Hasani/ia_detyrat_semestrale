@@ -102,6 +102,8 @@ class SearchNode:
 
 @dataclass(frozen=True)
 class SearchLimits:
+    """Resource limits; None means unlimited."""
+
     max_states: int | None = 1_000_000    # expanded states
     max_queue: int | None = 2_000_000     # simultaneous states in the queue
     time_limit: float | None = None       # seconds
@@ -171,6 +173,8 @@ class SearchStats:
 
 @dataclass
 class SearchResult:
+    """Outcome of one BFS run: status, solutions, path, statistics."""
+
     status: str                       # "solved", "no_solution" or "limit_reached"
     puzzle: Grid
     solutions: list[Grid]

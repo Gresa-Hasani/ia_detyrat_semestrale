@@ -52,6 +52,8 @@ class Transition(Generic[S]):
 
 
 class Problem(Protocol[S]):
+    """Interface every search-tree problem implements."""
+
     def initial_state(self) -> S: ...
     def is_goal(self, state: S) -> bool: ...
     def expand(self, state: S) -> list[Transition[S]]: ...
@@ -60,6 +62,8 @@ class Problem(Protocol[S]):
 
 @dataclass
 class TreeNode(Generic[S]):
+    """One node of the explicit search tree."""
+
     id: int
     state: S | None
     parent: int | None
@@ -72,6 +76,8 @@ class TreeNode(Generic[S]):
 
 @dataclass
 class TreeStats:
+    """Measured statistics of one tree construction."""
+
     nodes_generated: int = 0        # all tree nodes, including the root
     nodes_expanded: int = 0
     transitions_examined: int = 0   # valid + invalid transitions of expanded nodes
@@ -109,6 +115,8 @@ class TreeStats:
 
 @dataclass
 class SearchTree(Generic[S]):
+    """All generated nodes plus statistics and the goal node ids."""
+
     nodes: list[TreeNode[S]]
     stats: TreeStats
     strategy: str

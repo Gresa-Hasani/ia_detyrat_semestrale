@@ -110,10 +110,6 @@ def check_puzzle(grid: Grid) -> Grid:
     return grid
 
 
-def count_clues(grid: Grid) -> int:
-    return sum(1 for value in grid if value)
-
-
 def format_grid(grid: Grid) -> str:
     """Render a grid as 9 text lines with box separators."""
     lines = []

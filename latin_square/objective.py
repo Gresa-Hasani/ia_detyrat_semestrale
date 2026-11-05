@@ -18,6 +18,8 @@ from .model import Grid
 
 @dataclass(frozen=True)
 class ObjectiveValue:
+    """V(x), E(x) and Phi(x) = V(x) + E(x) of a grid."""
+
     violations: int
     empty_cells: int
 

@@ -32,6 +32,8 @@ def _require(name: str, value: object, minimum: int) -> int:
 
 @dataclass(frozen=True)
 class MissionariesCannibals:
+    """Search problem with M missionaries, C cannibals and a boat of the given capacity."""
+
     missionaries: int = 3
     cannibals: int = 3
     capacity: int = 2

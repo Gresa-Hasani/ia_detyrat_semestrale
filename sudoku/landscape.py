@@ -18,6 +18,8 @@ VALID_COMPLETE_GRIDS = 6_670_903_752_021_072_936_960
 
 @dataclass(frozen=True)
 class TheoreticalLandscape:
+    """Analytical size of a puzzle's search space."""
+
     clues: int
     empty_cells: int                 # E = search depth
     naive_bound: int                 # 9^E

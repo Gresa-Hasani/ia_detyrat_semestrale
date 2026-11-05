@@ -11,13 +11,21 @@ Artificial Intelligence 2026 — Assignment 1: Uninformed Search Techniques
 | 4 | Search Trees: 8-Puzzle, Missionaries and Cannibals, Rotating Workforce Scheduling | Search-tree construction (BFS / DFS) | Implemented ([docs](docs/search_trees.md)) |
 
 All search algorithms are implemented by hand; no external solver libraries
-are used.
+are used. The final verification of the whole project (requirements coverage,
+test results, re-checked metrics, assumptions and limitations) is in
+[docs/final_report.md](docs/final_report.md).
 
 ## Technologies
 
 * Python 3.10+ (developed and tested with Python 3.13.1)
 * Standard library only for the implementation
 * pytest for automated tests
+
+## Dependencies
+
+* Runtime: none beyond the Python standard library (`argparse`, `collections`,
+  `dataclasses`, `itertools`, `json`, `math`, `pathlib`, `time`, ...).
+* Tests: `pytest` (see `requirements.txt`).
 
 ## Installation
 
@@ -69,6 +77,13 @@ pytest.ini
 
 ## Running
 
+All problems run through one entry point, `python main.py <problem> [options]`;
+`python main.py --help` lists the problems and `python main.py <problem> --help`
+lists the options. Each problem package can also be run on its own, e.g.
+`python -m sudoku -d hard`.
+
+### Problem 1 — Social Golfers (`golfers`)
+
 ```bash
 python main.py golfers --help
 python main.py golfers -g 8 -p 4                        # 32 golfers, groups of 4
@@ -94,12 +109,14 @@ The package can also be run directly: `python -m social_golfers -g 3 -p 3`.
 
 Exit codes: `0` success, `1` independent validation failed, `2` invalid parameters.
 
+### Problem 2 — Sudoku (`sudoku`)
+
 ```bash
 python main.py sudoku --help
 python main.py sudoku -d easy                           # or medium / hard
 python main.py sudoku -d hard --show-path               # print the solution path
 python main.py sudoku -d hard --order row-major         # compare variable orders
-python main.py sudoku --puzzle "53..7....6..195..."      # custom 81-character puzzle
+python main.py sudoku --puzzle "53..7....6..195....98....6.8...6...34..8.3..17...2...6.6....28....419..5....8..79"
 python main.py sudoku --file puzzle.txt --count-solutions
 ```
 
@@ -117,6 +134,8 @@ Options of `sudoku`:
 | `--show-path` | print the assignments leading to the solution | off |
 
 Exit codes: `0` solved and validated, `1` no solution / limit reached / validation failed, `2` invalid puzzle or parameters.
+
+### Problem 3 — Latin Square (`latin`)
 
 ```bash
 python main.py latin --help
@@ -140,6 +159,10 @@ Options of `latin`:
 | `--time-limit` | seconds (0 = unlimited) | 120 |
 | `--hide-iterations` | do not print the per-iteration table | off |
 
+Exit codes: `0` solved and validated, `1` no solution / limit reached, `2` invalid input.
+
+### Problem 4 — Search Trees (`eight-puzzle`, `missionaries`, `workforce`)
+
 ```bash
 python main.py eight-puzzle                                  # default board, BFS
 python main.py eight-puzzle --initial "8 6 7 / 2 5 4 / 3 _ 1" --goal "1 2 3 / 4 5 6 / 7 8 _"
@@ -161,7 +184,8 @@ Options shared by `eight-puzzle`, `missionaries` and `workforce`:
 | `--mermaid FILE` | write a depth-limited Mermaid diagram | — |
 
 Problem options: `eight-puzzle --initial --goal`; `missionaries -m -c -b`;
-`workforce --config FILE.json`.
+`workforce --config FILE.json`. Exit codes: `0` solved and validated,
+`1` no solution / limit reached, `2` invalid input.
 
 ## Testing
 
@@ -171,6 +195,70 @@ python -m pytest -v tests/test_social_golfers.py
 python -m pytest -v tests/test_sudoku.py
 python -m pytest -v tests/test_latin_square.py
 python -m pytest -v tests/test_search_tree_core.py tests/test_eight_puzzle.py tests/test_missionaries_cannibals.py tests/test_workforce_scheduling.py
+```
+
+## Example Outputs
+
+Excerpts of real runs (full outputs also print the theoretical landscape and
+the search statistics).
+
+`python main.py golfers -g 3 -p 3`:
+
+```
+Best schedule (4 weeks):
+Week    | Group 1 | Group 2 | Group 3
+-------------------------------------
+Week 1  | 0,1,2   | 3,4,5   | 6,7,8
+Week 2  | 0,3,6   | 1,4,7   | 2,5,8
+Week 3  | 0,4,8   | 1,5,6   | 2,3,7
+Week 4  | 0,5,7   | 1,3,8   | 2,4,6
+```
+
+`python main.py sudoku -d medium`:
+
+```
+Solution:
+5 1 9 | 7 4 8 | 6 3 2
+7 8 3 | 6 5 2 | 4 1 9
+4 2 6 | 1 3 9 | 8 7 5
+------+-------+------
+3 5 7 | 9 8 6 | 2 4 1
+2 6 4 | 3 1 7 | 5 9 8
+1 9 8 | 5 2 4 | 3 6 7
+------+-------+------
+9 7 5 | 8 6 3 | 1 2 4
+8 3 2 | 4 9 1 | 7 5 6
+6 4 1 | 2 7 5 | 9 8 3
+```
+
+`python main.py latin -n 5`:
+
+```
+Latin square:
+1 2 3 4 5
+2 1 4 5 3
+3 4 5 1 2
+4 5 2 3 1
+5 3 1 2 4
+```
+
+`python main.py missionaries`:
+
+```
+Solution (11 crossings):
+  d= 0 start      (3,3,L) 3M3C [boat] ~~~       0M0C
+  d= 1 0M2C to R  (3,1,R) 3M1C       ~~~ [boat] 0M2C
+  d= 2 0M1C to L  (3,2,L) 3M2C [boat] ~~~       0M1C
+  d= 3 0M2C to R  (3,0,R) 3M0C       ~~~ [boat] 0M3C
+  d= 4 0M1C to L  (3,1,L) 3M1C [boat] ~~~       0M2C
+  d= 5 2M0C to R  (1,1,R) 1M1C       ~~~ [boat] 2M2C
+  d= 6 1M1C to L  (2,2,L) 2M2C [boat] ~~~       1M1C
+  d= 7 2M0C to R  (0,2,R) 0M2C       ~~~ [boat] 3M1C
+  d= 8 0M1C to L  (0,3,L) 0M3C [boat] ~~~       3M0C
+  d= 9 0M2C to R  (0,1,R) 0M1C       ~~~ [boat] 3M2C
+  d=10 0M1C to L  (0,2,L) 0M2C [boat] ~~~       3M1C
+  d=11 0M2C to R  (0,0,R) 0M0C       ~~~ [boat] 3M3C
+Independent validation: PASSED
 ```
 
 ## Problem 1 — Social Golfers Problem

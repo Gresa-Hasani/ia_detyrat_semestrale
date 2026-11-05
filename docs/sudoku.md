@@ -347,8 +347,8 @@ Let `E` be the number of empty cells and `b ≤ 9` the branching factor.
 Command: `python -m pytest -v tests/test_sudoku.py`.
 
 Measured result: **62 tests collected, 62 passed, 0 failed, 6.7 s**
-(Python 3.13.1, pytest 9.0.2). The complete project suite
-(`python -m pytest`) runs **130 tests, 130 passed** (68 Social Golfers + 62 Sudoku).
+(Python 3.13.1, pytest 9.0.2). Results of the complete project suite are in
+[final_report.md](final_report.md).
 
 | Test class | Tests | What is verified |
 |---|---|---|

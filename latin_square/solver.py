@@ -46,6 +46,8 @@ FOUND, CUTOFF, FAILURE = "found", "cutoff", "failure"
 
 @dataclass(frozen=True)
 class SearchLimits:
+    """Resource limits; None means unlimited."""
+
     max_nodes: int | None = 5_000_000   # nodes visited, summed over all iterations
     time_limit: float | None = None     # seconds
 
@@ -82,6 +84,8 @@ class IterationStats:
 
 @dataclass
 class SearchStats:
+    """Measured statistics summed over all IDDFS iterations."""
+
     free_cells: int = 0
     iterations: list[IterationStats] = field(default_factory=list)
     solutions_found: int = 0
@@ -137,6 +141,8 @@ class SearchStats:
 
 @dataclass
 class SearchResult:
+    """Outcome of one IDDFS run."""
+
     status: str                 # "solved", "no_solution" or "limit_reached"
     n: int
     prefill: Grid

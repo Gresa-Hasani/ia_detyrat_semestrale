@@ -312,8 +312,8 @@ Let `D` be the number of free cells and `b ≤ n` the branching factor.
 Command: `python -m pytest -v tests/test_latin_square.py`.
 
 Measured result: **80 tests collected, 80 passed, 0 failed, 20.7 s**
-(Python 3.13.1, pytest 9.0.2). The whole project suite (`python -m pytest`)
-runs **210 tests, 210 passed** (68 Social Golfers + 62 Sudoku + 80 Latin Square).
+(Python 3.13.1, pytest 9.0.2). Results of the complete project suite are in
+[final_report.md](final_report.md).
 
 | Test class | Tests | What is verified |
 |---|---|---|

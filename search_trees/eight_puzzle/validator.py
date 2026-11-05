@@ -13,6 +13,8 @@ DELTAS = {"Up": (-1, 0), "Down": (1, 0), "Left": (0, -1), "Right": (0, 1)}
 
 @dataclass
 class ValidationReport:
+    """Errors found while replaying a solution."""
+
     errors: list[str] = field(default_factory=list)
     final_board: tuple[int, ...] | None = None
 

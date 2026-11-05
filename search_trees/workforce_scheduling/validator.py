@@ -14,6 +14,8 @@ OFF = "-"
 
 @dataclass
 class ValidationReport:
+    """Errors found by the independent validator."""
+
     errors: list[str] = field(default_factory=list)
 
     @property

@@ -17,6 +17,8 @@ KNOWN_REDUCED_SQUARES = {1: 1, 2: 1, 3: 1, 4: 4, 5: 56, 6: 9_408, 7: 16_942_080}
 
 @dataclass(frozen=True)
 class TheoreticalLandscape:
+    """Analytical size of the Latin square search space."""
+
     n: int
     cells: int                        # n^2
     free_cells: int                   # D = search depth
