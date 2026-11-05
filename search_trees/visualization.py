@@ -1,8 +1,17 @@
 """Readable, depth-limited renderings of a search tree (text and Mermaid).
 
-Large trees are never drawn in full: only nodes up to ``max_depth`` and at
-most ``max_nodes`` nodes are shown, and every rendering states that it is a
-partial view of the complete tree.
+Large trees are never drawn in full. A drawing contains
+
+* every node up to ``max_depth`` (breadth-first, at most ``max_nodes``);
+* the complete solution path from the root to the first goal, together with
+  the direct children of every node on that path (the alternatives the
+  search considered at each step), however deep the goal lies;
+* for every drawn node whose children were not all drawn, a marker
+  "... k more nodes not drawn", so an omitted branch is never mistaken for a
+  leaf of the search tree.
+
+Every rendering states whether it shows the complete tree or a partial view.
+Nodes are always taken from the tree that the search actually built.
 """
 
 from __future__ import annotations
@@ -22,34 +31,69 @@ STATUS_MARK = {
 }
 
 
-def _visible_nodes(tree: SearchTree, max_depth: int, max_nodes: int) -> list[int]:
-    """Breadth-first selection of the nodes to draw (solution path first)."""
-    on_path = {n.id for n in tree.solution_path() if n.depth <= max_depth}
-    chosen: list[int] = []
-    seen: set[int] = set()
+def _visible_nodes(tree: SearchTree, max_depth: int, max_nodes: int,
+                   include_solution_path: bool = True) -> list[int]:
+    """Ids of the nodes to draw, in breadth-first order (see module docstring)."""
+    wanted: set[int] = set()
     queue = [0]
-    while queue:
+    while queue:                                     # depth-limited BFS selection
         node_id = queue.pop(0)
         node = tree.nodes[node_id]
-        if node.depth > max_depth:
+        if node.depth > max_depth or len(wanted) >= max_nodes:
             continue
-        if len(chosen) >= max_nodes and node_id not in on_path:
-            continue
-        chosen.append(node_id)
-        seen.add(node_id)
+        wanted.add(node_id)
         queue.extend(node.children)
-    return [i for i in chosen if tree.nodes[i].parent is None or tree.nodes[i].parent in seen]
+    if include_solution_path:
+        for node in tree.solution_path():
+            wanted.add(node.id)
+            wanted.update(node.children)             # alternatives at every step
+    # Keep only nodes whose parent is drawn, in breadth-first order.
+    ordered, frontier = [], [0]
+    while frontier:
+        node_id = frontier.pop(0)
+        if node_id not in wanted:
+            continue
+        ordered.append(node_id)
+        frontier.extend(tree.nodes[node_id].children)
+    return ordered
 
 
-def _hidden_count(tree: SearchTree, shown: set[int]) -> int:
-    return len(tree.nodes) - len(shown)
+def _subtree_size(tree: SearchTree, node_id: int) -> int:
+    size, stack = 0, [node_id]
+    while stack:
+        current = stack.pop()
+        size += 1
+        stack.extend(tree.nodes[current].children)
+    return size
+
+
+def _omitted(tree: SearchTree, shown: set[int]) -> dict[int, int]:
+    """For every drawn node: number of descendants that are not drawn."""
+    omitted = {}
+    for node_id in shown:
+        hidden = sum(_subtree_size(tree, c) for c in tree.nodes[node_id].children if c not in shown)
+        if hidden:
+            omitted[node_id] = hidden
+    return omitted
+
+
+def _more(count: int) -> str:
+    return f"... {count} more node{'s' if count != 1 else ''} not drawn"
+
+
+def _summary(tree: SearchTree, shown: set[int], max_depth: int, path: bool) -> str:
+    if len(shown) == len(tree.nodes):
+        return f"Complete tree: all {len(tree.nodes)} nodes shown"
+    scope = f"depth at most {max_depth}" + (" plus the solution path" if path and tree.goal_ids else "")
+    return f"Partial tree: {len(shown)} of {len(tree.nodes)} nodes shown ({scope})"
 
 
 def render_text(tree: SearchTree, format_state: Callable, max_depth: int = 3,
-                max_nodes: int = 60) -> str:
-    """Indented text tree: ``[id] action -> state (status)``."""
-    shown_list = _visible_nodes(tree, max_depth, max_nodes)
+                max_nodes: int = 60, include_solution_path: bool = True) -> str:
+    """Indented text tree: ``[id] d=depth action -> state (status; reason)``."""
+    shown_list = _visible_nodes(tree, max_depth, max_nodes, include_solution_path)
     shown = set(shown_list)
+    omitted = _omitted(tree, shown)
     on_path = {n.id for n in tree.solution_path()}
     lines: list[str] = []
 
@@ -70,15 +114,12 @@ def render_text(tree: SearchTree, format_state: Callable, max_depth: int = 3,
         kids = [c for c in node.children if c in shown]
         child_prefix = prefix + ("" if node.parent is None else ("    " if last else "|   "))
         for i, child in enumerate(kids):
-            walk(child, child_prefix, i == len(kids) - 1)
+            walk(child, child_prefix, i == len(kids) - 1 and node_id not in omitted)
+        if node_id in omitted:
+            lines.append(f"{child_prefix}`-- {_more(omitted[node_id])}")
 
     walk(0, "", True)
-    hidden = _hidden_count(tree, shown)
-    lines.append(
-        f"(Partial view: {len(shown)} of {len(tree.nodes)} nodes, depth <= {max_depth}; "
-        f"{hidden} nodes not shown.)" if hidden else
-        f"(Complete tree: {len(tree.nodes)} nodes.)"
-    )
+    lines.append(f"({_summary(tree, shown, max_depth, include_solution_path)}.)")
     return "\n".join(lines)
 
 
@@ -87,10 +128,12 @@ def _mermaid_escape(text: str) -> str:
 
 
 def render_mermaid(tree: SearchTree, format_label: Callable, max_depth: int = 3,
-                   max_nodes: int = 40, title: str | None = None) -> str:
+                   max_nodes: int = 40, title: str | None = None,
+                   include_solution_path: bool = True) -> str:
     """Mermaid flowchart (top-down). ``format_label`` may return lines joined by ``<br/>``."""
-    shown_list = _visible_nodes(tree, max_depth, max_nodes)
+    shown_list = _visible_nodes(tree, max_depth, max_nodes, include_solution_path)
     shown = set(shown_list)
+    omitted = _omitted(tree, shown)
     on_path = {n.id for n in tree.solution_path()}
     lines = ["flowchart TD"] + ([f"    %% {title}"] if title else [])
     for node_id in shown_list:
@@ -99,16 +142,16 @@ def render_mermaid(tree: SearchTree, format_label: Callable, max_depth: int = 3,
         label = "<br/>".join(_mermaid_escape(part) for part in label.split("<br/>"))
         tag = "START" if node.id == 0 else STATUS_MARK[node.status]
         header = f"id {node.id}, d={node.depth}" + (f", {tag}" if tag else "")
-        lines.append(f'    n{node.id}["{header}<br/>{label}"]')
+        reason = f"<br/><i>{_mermaid_escape(node.reason)}</i>" if node.reason else ""
+        lines.append(f'    n{node.id}["{header}<br/>{label}{reason}"]')
     for node_id in shown_list:
         node = tree.nodes[node_id]
         if node.parent is not None and node.parent in shown:
             lines.append(f'    n{node.parent} -->|"{_mermaid_escape(node.action)}"| n{node.id}')
-    hidden = _hidden_count(tree, shown)
-    if hidden:
-        note = f"Partial tree: {len(shown)} of {len(tree.nodes)} nodes shown (depth at most {max_depth})"
-        lines.append(f'    partialNote["{note}"]')
-        lines.append("    class partialNote note")
+    for node_id, count in omitted.items():
+        lines.append(f'    more{node_id}["{_more(count)}"]')
+        lines.append(f"    n{node_id} -.-> more{node_id}")
+    lines.append(f'    summaryNote["{_summary(tree, shown, max_depth, include_solution_path)}"]')
     lines += [
         "    classDef start fill:#dbeafe,stroke:#1d4ed8,color:#111",
         "    classDef goal fill:#dcfce7,stroke:#15803d,color:#111",
@@ -116,8 +159,12 @@ def render_mermaid(tree: SearchTree, format_label: Callable, max_depth: int = 3,
         "    classDef duplicate fill:#f3f4f6,stroke:#9ca3af,color:#555,stroke-dasharray:4 3",
         "    classDef invalid fill:#fee2e2,stroke:#b91c1c,color:#111",
         "    classDef cut fill:#fef9c3,stroke:#a16207,color:#111",
+        "    classDef omitted fill:#ffffff,stroke:#9ca3af,color:#555,stroke-dasharray:2 2",
         "    classDef note fill:#ffffff,stroke:#ffffff,color:#555",
+        "    class summaryNote note",
     ]
+    for node_id in omitted:
+        lines.append(f"    class more{node_id} omitted")
     for node_id in shown_list:
         node = tree.nodes[node_id]
         classes = []

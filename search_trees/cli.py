@@ -17,13 +17,17 @@ from .eight_puzzle.model import (
     inversions,
     parse_board,
 )
+from .eight_puzzle.model import diagram_style as puzzle_style
 from .eight_puzzle.validator import validate_solution as validate_puzzle
 from .missionaries_cannibals.model import MissionariesCannibals
+from .missionaries_cannibals.model import diagram_style as crossing_style
 from .missionaries_cannibals.validator import validate_solution as validate_crossing
 from .missionaries_cannibals.validator import validate_state
+from .graphics import export
 from .report import format_stats
 from .visualization import render_mermaid, render_text
 from .workforce_scheduling.model import RotatingWorkforce, WorkforceConfig, load_config
+from .workforce_scheduling.model import diagram_style as workforce_style
 from .workforce_scheduling.validator import validate_schedule
 
 
@@ -42,6 +46,12 @@ def _add_common(parser: argparse.ArgumentParser, strategy: str) -> None:
     parser.add_argument("--tree-depth", type=int, default=3, help="depth shown in the tree view (default 3)")
     parser.add_argument("--tree-nodes", type=int, default=40, help="max nodes shown in the tree view (default 40)")
     parser.add_argument("--mermaid", type=Path, help="write a depth-limited Mermaid diagram to this file")
+    parser.add_argument("--graph", type=Path, metavar="STEM",
+                        help="write a graphical diagram: STEM.svg, STEM.dot (Graphviz) and STEM.png "
+                             "(PNG only if Pillow is installed)")
+    parser.add_argument("--no-solution-path", action="store_true",
+                        help="draw only the depth-limited part (by default the whole solution path "
+                             "and the alternatives at each step are added)")
 
 
 def _build(problem, args):
@@ -61,13 +71,18 @@ def _build(problem, args):
     )
 
 
-def _show_tree(problem, tree, args, title: str) -> None:
-    print(f"\nSearch tree (partial view, depth <= {args.tree_depth}, at most {args.tree_nodes} nodes):")
-    print(render_text(tree, problem.format_state, args.tree_depth, args.tree_nodes))
+def _show_tree(problem, tree, args, title: str, style) -> None:
+    path = not args.no_solution_path
+    scope = " plus the solution path" if path and tree.goal_ids else ""
+    print(f"\nSearch tree (nodes up to depth {args.tree_depth}, at most {args.tree_nodes}{scope}):")
+    print(render_text(tree, problem.format_state, args.tree_depth, args.tree_nodes, path))
     if args.mermaid:
-        diagram = render_mermaid(tree, problem.format_label, args.tree_depth, args.tree_nodes, title)
+        diagram = render_mermaid(tree, problem.format_label, args.tree_depth, args.tree_nodes, title, path)
         args.mermaid.write_text(f"```mermaid\n{diagram}\n```\n", encoding="utf-8")
         print(f"\nMermaid diagram written to {args.mermaid}")
+    if args.graph:
+        files = export(tree, style, args.graph, args.tree_depth, args.tree_nodes, path)
+        print("\nGraphical diagram written to " + ", ".join(str(f) for f in files))
     print("\nSearch statistics:")
     print(format_stats(tree))
 
@@ -97,7 +112,8 @@ def run_eight_puzzle(args: argparse.Namespace) -> int:
         tree = _build(problem, args)
     except SearchTreeError as error:
         return _fail(error)
-    _show_tree(problem, tree, args, "8-Puzzle search tree")
+    title = f"8-Puzzle search tree ({tree.strategy.upper()})"
+    _show_tree(problem, tree, args, title, puzzle_style(title))
     if tree.goal is None:
         print("\nNo solution found" + (" (search limit reached)." if tree.stats.limit_reached else "."))
         return 1
@@ -132,7 +148,8 @@ def run_missionaries(args: argparse.Namespace) -> int:
           f"goal {problem.goal_state()}")
     print(f"  State space: {len(states)} combinations, {len(safe)} safe; "
           f"{len(problem.boat_loads())} possible boat loads")
-    _show_tree(problem, tree, args, "Missionaries and Cannibals search tree")
+    title = f"Missionaries and Cannibals search tree ({tree.strategy.upper()})"
+    _show_tree(problem, tree, args, title, crossing_style(title))
     if tree.goal is None:
         print("\nNo solution found" + (" (search limit reached)." if tree.stats.limit_reached else "."))
         return 1
@@ -164,7 +181,8 @@ def run_workforce(args: argparse.Namespace) -> int:
           f"shifts {', '.join(config.shifts)} and '-' (off)")
     print(f"  Search depth: {config.cells} cells; naive assignments {len(problem.values)}^{config.cells} = "
           f"{len(problem.values) ** config.cells:,}")
-    _show_tree(problem, tree, args, "Rotating Workforce Scheduling search tree")
+    title = f"Rotating Workforce Scheduling search tree ({tree.strategy.upper()})"
+    _show_tree(problem, tree, args, title, workforce_style(problem, title))
     if tree.goal is None:
         print("\nNo schedule found" + (" (search limit reached)." if tree.stats.limit_reached
                                        else ": the constraints cannot all be satisfied."))

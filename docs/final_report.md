@@ -27,7 +27,7 @@ and English documentation.
 | Objective function | f(S) = longest valid prefix, V(S) repeated pairs (`objective.py`) | Φ(x) = V(x) + E(x) (`objective.py`) | Φ(x) = V(x) + E(x) (`objective.py`) | path to the goal; shortest path with BFS; feasibility for scheduling (doc §8) |
 | Landscape | theoretical counts (`landscape.py`) + measured statistics (doc §9) | theoretical bounds + measured per difficulty (doc §9) | theoretical counts, literature L(n)/R(n), nodes per depth limit (doc §9) | state-space sizes + measured tree statistics (doc §9) |
 | Required algorithm | DFS + backtracking (`solver.py`) | BFS (FIFO `deque`) + backtracking (`solver.py`) | IDDFS + backtracking (`solver.py`) | explicit search tree (`core.py`) |
-| Problem-specific | configurable g, p, n, w; limits | Easy / Medium / Hard, classified by measured effort | configurable n; n = 3, 4, 5 tested | trees, parent-child links, duplicates, depth-limited Mermaid/text views |
+| Problem-specific | configurable g, p, n, w; limits | Easy / Medium / Hard, classified by measured effort | configurable n; n = 3, 4, 5 tested | trees, parent-child links, duplicates, graphical SVG/PNG/DOT diagrams with the complete solution path, plus text and Mermaid views |
 
 Additional requirements from the project brief that were checked:
 
@@ -37,7 +37,7 @@ Additional requirements from the project brief that were checked:
 | Genuine IDDFS | limits 0, 1, 2, … D (`test_depth_limits_start_at_zero_and_grow_by_one`); each iteration restarts from the root and never exceeds its limit (`test_each_iteration_respects_its_depth_limit`, `test_iterations_restart_from_the_root`) |
 | Genuine DFS with backtracking | explicit undo of slot, week mask and pair bits; exhaustive counts equal known combinatorics (6 / 720 schedules, 1 / 2 canonical) |
 | Independent validators | one per problem, sharing no code with the solvers; every CLI run validates its result |
-| No external solvers or black boxes | the implementation imports only the Python standard library (checked by an import scan) |
+| No external solvers or black boxes | the algorithms import only the Python standard library (checked by an import scan); the only optional package is Pillow, used solely to export PNG images of the search trees |
 | Workforce assumptions documented | [workforce_scheduling.md §0](workforce_scheduling.md) separates the official requirement from assumed rules R1–R6 |
 | English-only documentation | all docs, comments, CLI messages and reports are in English (scan for Albanian text found only the file name `Detyra1.md`) |
 
@@ -48,7 +48,7 @@ Additional requirements from the project brief that were checked:
 | Social Golfers | DFS with backtracking over canonical set partitions; bitmask pair checks; group and week forward checking; sound symmetry breaking (fixed week 1, ordered weeks); node/time limits; keeps the deepest feasible schedule |
 | Sudoku | BFS over a FIFO queue, one cell per level (MRV or row-major); conflicts rejected and dead ends discarded (backtracking), search resumes from the next queued state; visited set; parent links rebuild the path |
 | Latin Square | IDDFS: depth-limited DFS for limits 0..D; early rejection and explicit undo; stops when an iteration exhausts its tree without a cutoff; optional reduced form and depth step |
-| Search Trees | explicit tree with BFS (FIFO) or DFS (LIFO); duplicate detection (graph search) or tree search with a depth limit; invalid transitions recorded as leaves; depth-limited text and Mermaid renderings |
+| Search Trees | explicit tree with BFS (FIFO) or DFS (LIFO); duplicate detection (graph search) or tree search with a depth limit; invalid transitions recorded as leaves; graphical diagrams (tidy-tree SVG, PNG, Graphviz DOT) and text/Mermaid views showing the complete solution path |
 
 ## 4. Files
 
@@ -59,9 +59,10 @@ initial `.gitignore` and `README.md`):
 * `social_golfers/`: `__init__.py`, `__main__.py`, `cli.py`, `landscape.py`, `model.py`, `objective.py`, `report.py`, `solver.py`, `validator.py`
 * `sudoku/`: `__init__.py`, `__main__.py`, `cli.py`, `landscape.py`, `model.py`, `objective.py`, `puzzles.py`, `report.py`, `solver.py`, `validator.py`
 * `latin_square/`: `__init__.py`, `__main__.py`, `cli.py`, `landscape.py`, `model.py`, `objective.py`, `report.py`, `solver.py`, `validator.py`
-* `search_trees/`: `__init__.py`, `cli.py`, `core.py`, `report.py`, `visualization.py`, `eight_puzzle/{__init__,model,validator}.py`, `missionaries_cannibals/{__init__,model,validator}.py`, `workforce_scheduling/{__init__,model,validator}.py`
-* `tests/`: `test_social_golfers.py`, `test_sudoku.py`, `test_latin_square.py`, `test_search_tree_core.py`, `test_eight_puzzle.py`, `test_missionaries_cannibals.py`, `test_workforce_scheduling.py`
+* `search_trees/`: `__init__.py`, `cli.py`, `core.py`, `graphics.py`, `report.py`, `visualization.py`, `eight_puzzle/{__init__,model,validator}.py`, `missionaries_cannibals/{__init__,model,validator}.py`, `workforce_scheduling/{__init__,model,validator}.py`
+* `tests/`: `test_social_golfers.py`, `test_sudoku.py`, `test_latin_square.py`, `test_search_tree_core.py`, `test_eight_puzzle.py`, `test_missionaries_cannibals.py`, `test_workforce_scheduling.py`, `test_search_tree_graphics.py`
 * `docs/`: `social_golfers.md`, `sudoku.md`, `latin_square.md`, `search_trees.md`, `eight_puzzle.md`, `missionaries_cannibals.md`, `workforce_scheduling.md`, `final_report.md`
+* `docs/assets/search_trees/`: `eight_puzzle_dfs_tree`, `eight_puzzle_tree`, `missionaries_cannibals_tree`, `workforce_scheduling_tree`, each as `.svg`, `.png` and `.dot`
 
 Modified: `README.md` (rewritten as the project README).
 
@@ -77,25 +78,48 @@ Changes made during the final verification (Phase 5):
   totals replaced by a link to this report;
 * `docs/final_report.md` (this file).
 
+Search-tree review after Phase 5 (against "Construct Search Trees for 8-Puzzle,
+Missionaries and Cannibals and Rotating Workforce Scheduling"):
+
+* the earlier Mermaid views stopped at depth 2–4 and therefore did not show the
+  goals (depth 5, 11 and 21); every view now always includes the complete
+  solution path and the alternatives at each of its steps, names the reason
+  of every invalid or duplicate node, and marks omitted branches with their
+  node count;
+* new graphical diagrams (`search_trees/graphics.py`, option `--graph`): SVG
+  and Graphviz DOT with the standard library, PNG with the optional Pillow,
+  top-down tidy-tree layout, embedded in the problem documents and the README;
+* problem-specific node styles modelled on classic textbook search-tree
+  figures: 8-Puzzle boards with the blank in blue (plus a complete DFS tree),
+  Missionaries and Cannibals `[m, c, b]` ellipses with `[x y d]` edges, and
+  colour-coded workforce schedule grids; the expansion order of the search is
+  shown on every expanded node (recorded by the engine as `TreeNode.order`,
+  without changing the search);
+* new tests `tests/test_search_tree_graphics.py` and updated visualization
+  tests in `tests/test_search_tree_core.py`.
+
 ## 5. Test Results
 
-Command: `python -m pytest`. Result: **315 tests collected, 315 passed,
-0 failed, 50.8 s.**
+Command: `python -m pytest`. Result: **358 tests collected, 358 passed,
+0 failed, 31.9 s** (re-run after the search-tree diagram update; the earlier
+Phase 5 run had 315 tests, 315 passed).
 
 | Test file | Tests | Passed |
 |---|---|---|
 | `tests/test_social_golfers.py` | 68 | 68 |
 | `tests/test_sudoku.py` | 62 | 62 |
 | `tests/test_latin_square.py` | 80 | 80 |
-| `tests/test_search_tree_core.py` | 20 | 20 |
+| `tests/test_search_tree_core.py` | 22 | 22 |
 | `tests/test_eight_puzzle.py` | 32 | 32 |
 | `tests/test_missionaries_cannibals.py` | 23 | 23 |
 | `tests/test_workforce_scheduling.py` | 30 | 30 |
-| **Total** | **315** | **315** |
+| `tests/test_search_tree_graphics.py` | 41 | 41 |
+| **Total** | **358** | **358** |
 
-Slowest tests: Latin square full grid n = 5 with step 5 (10.1 s), the
-exhaustive 12-golfer optimality proof (9.5 s), reduced Latin square n = 6
-(9.3 s), and exhaustion of all 181,440 boards of an unsolvable 8-Puzzle (5.9 s).
+Slowest tests (Phase 5 run): Latin square full grid n = 5 with step 5
+(10.1 s), the exhaustive 12-golfer optimality proof (9.5 s), reduced Latin
+square n = 6 (9.3 s), and exhaustion of all 181,440 boards of an unsolvable
+8-Puzzle (5.9 s). Times vary between runs on the same machine.
 
 ## 6. Verification of Reported Metrics
 
@@ -129,8 +153,11 @@ machine and will differ elsewhere; they were not re-checked for equality.
   shortened puzzle string and returned 2; it was replaced by the complete
   puzzle, which now solves.
 * **Dependencies:** an import scan confirms that the implementation uses only
-  the Python standard library; `pytest` is the only third-party package
-  (tests only, listed in `requirements.txt`).
+  the Python standard library; `pytest` is the only required third-party
+  package (tests only, listed in `requirements.txt`). Pillow is optional and
+  only used for the PNG export of the search-tree diagrams (it was already
+  installed on the development machine; without it the PNG is skipped and the
+  SVG/DOT files are still written). Graphviz is not required.
 * **Not performed:** a fresh virtual environment with `pip install` was not
   created during verification (it would download packages); the project was
   tested with the already installed pytest 9.0.2. The code was run only on
@@ -140,9 +167,9 @@ machine and will differ elsewhere; they were not re-checked for equality.
 
 ## 8. Code Quality Checks
 
-A standard-library static check (no external linter installed) over all 50
+A standard-library static check (no external linter installed) over all 52
 Python files reports: no syntax errors, no unused imports, no non-standard
-imports, no `TODO`/`FIXME` markers, module docstrings everywhere, docstrings
+imports apart from the guarded optional Pillow import in `graphics.py`, no `TODO`/`FIXME` markers, module docstrings everywhere, docstrings
 on all public classes. A reference scan found no unreferenced functions after
 the two removals listed in Section 4.
 
@@ -183,8 +210,11 @@ duplicating the search loop.
   iteration before the last is exhaustive. Practical range: n ≤ 6 (reduced
   form), n ≤ 5 (full grid); n = 7 does not finish within 60 s.
 * **Search Trees:** uninformed BFS/DFS only (no heuristics); DFS paths can be
-  far from optimal (40,757 moves on the hardest 8-Puzzle); drawings are always
-  partial views; the workforce rules are assumptions.
+  far from optimal (40,757 moves on the hardest 8-Puzzle); large trees are
+  drawn as partial views (the 8-Puzzle DFS tree and the Missionaries and
+  Cannibals graph-search tree are drawn completely, the latter without its
+  repeated-state leaves); the diagrams use a built-in layout because Graphviz was not
+  installed (DOT sources are provided); the workforce rules are assumptions.
 
 ## 11. Remaining Issues
 

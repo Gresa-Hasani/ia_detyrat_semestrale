@@ -130,79 +130,46 @@ function EXPAND((m, c, b)):
 
 ## 12. Implementation and Search-Tree Visualization
 
-Complete tree for 3/3/2 (BFS, `--explore-all`) drawn up to depth 4
-(`python main.py missionaries --explore-all --tree-depth 4 --tree-nodes 30 --mermaid tree.md`;
-**partial tree**: 19 of 49 nodes):
+### Complete search tree (BFS)
 
-```mermaid
-flowchart TD
-    %% Missionaries and Cannibals search tree
-    n0["id 0, d=0, START<br/>(3,3,L)<br/>L: 3M 3C | R: 0M 0C"]
-    n1["id 1, d=1, dead end<br/>(3,2,R)<br/>L: 3M 2C | R: 0M 1C"]
-    n2["id 2, d=1<br/>(3,1,R)<br/>L: 3M 1C | R: 0M 2C"]
-    n3["id 3, d=1, invalid<br/>(2,3,R)<br/>L: 2M 3C | R: 1M 0C"]
-    n4["id 4, d=1, dead end<br/>(2,2,R)<br/>L: 2M 2C | R: 1M 1C"]
-    n5["id 5, d=1, invalid<br/>(1,3,R)<br/>L: 1M 3C | R: 2M 0C"]
-    n6["id 6, d=2, duplicate<br/>(3,3,L)<br/>L: 3M 3C | R: 0M 0C"]
-    n7["id 7, d=2<br/>(3,2,L)<br/>L: 3M 2C | R: 0M 1C"]
-    n8["id 8, d=2, duplicate<br/>(3,3,L)<br/>L: 3M 3C | R: 0M 0C"]
-    n9["id 9, d=2, invalid<br/>(2,3,L)<br/>L: 2M 3C | R: 1M 0C"]
-    n10["id 10, d=2, duplicate<br/>(3,2,L)<br/>L: 3M 2C | R: 0M 1C"]
-    n11["id 11, d=2, duplicate<br/>(3,3,L)<br/>L: 3M 3C | R: 0M 0C"]
-    n12["id 12, d=3, duplicate<br/>(3,1,R)<br/>L: 3M 1C | R: 0M 2C"]
-    n13["id 13, d=3<br/>(3,0,R)<br/>L: 3M 0C | R: 0M 3C"]
-    n14["id 14, d=3, duplicate<br/>(2,2,R)<br/>L: 2M 2C | R: 1M 1C"]
-    n15["id 15, d=3, invalid<br/>(2,1,R)<br/>L: 2M 1C | R: 1M 2C"]
-    n16["id 16, d=3, invalid<br/>(1,2,R)<br/>L: 1M 2C | R: 2M 1C"]
-    n17["id 17, d=4<br/>(3,1,L)<br/>L: 3M 1C | R: 0M 2C"]
-    n18["id 18, d=4, duplicate<br/>(3,2,L)<br/>L: 3M 2C | R: 0M 1C"]
-    n0 -->|"0M1C to R"| n1
-    n0 -->|"0M2C to R"| n2
-    n0 -->|"1M0C to R"| n3
-    n0 -->|"1M1C to R"| n4
-    n0 -->|"2M0C to R"| n5
-    n1 -->|"0M1C to L"| n6
-    n2 -->|"0M1C to L"| n7
-    n2 -->|"0M2C to L"| n8
-    n4 -->|"0M1C to L"| n9
-    n4 -->|"1M0C to L"| n10
-    n4 -->|"1M1C to L"| n11
-    n7 -->|"0M1C to R"| n12
-    n7 -->|"0M2C to R"| n13
-    n7 -->|"1M0C to R"| n14
-    n7 -->|"1M1C to R"| n15
-    n7 -->|"2M0C to R"| n16
-    n13 -->|"0M1C to L"| n17
-    n13 -->|"0M2C to L"| n18
-    partialNote["Partial tree: 19 of 49 nodes shown (depth at most 4)"]
-    class partialNote note
-    classDef start fill:#dbeafe,stroke:#1d4ed8,color:#111
-    classDef goal fill:#dcfce7,stroke:#15803d,color:#111
-    classDef path stroke:#15803d,stroke-width:3px
-    classDef duplicate fill:#f3f4f6,stroke:#9ca3af,color:#555,stroke-dasharray:4 3
-    classDef invalid fill:#fee2e2,stroke:#b91c1c,color:#111
-    classDef cut fill:#fef9c3,stroke:#a16207,color:#111
-    classDef note fill:#ffffff,stroke:#ffffff,color:#555
-    class n0 start
-    class n2 path
-    class n3 invalid
-    class n5 invalid
-    class n6 duplicate
-    class n7 path
-    class n8 duplicate
-    class n9 invalid
-    class n10 duplicate
-    class n11 duplicate
-    class n12 duplicate
-    class n13 path
-    class n14 duplicate
-    class n15 invalid
-    class n16 invalid
-    class n17 path
-    class n18 duplicate
-```
+![Missionaries and Cannibals search tree](assets/search_trees/missionaries_cannibals_tree.svg)
 
-The complete 49-node tree as text (`--explore-all --tree-depth 11 --tree-nodes 60`):
+Files: [SVG](assets/search_trees/missionaries_cannibals_tree.svg) ·
+[PNG](assets/search_trees/missionaries_cannibals_tree.png) ·
+[Graphviz DOT](assets/search_trees/missionaries_cannibals_tree.dot) — generated with
+`python main.py missionaries --explore-all --tree-depth 11 --tree-nodes 60 --graph docs/assets/search_trees/missionaries_cannibals_tree`.
+
+Notation (as in the legend): a node `[m, c, b]` gives the missionaries and
+cannibals on the left bank and the boat side (`b = 1` left, `b = 0` right); an
+edge `[x y d]` moves `x` missionaries and `y` cannibals, to the right bank if
+`d = 1` and to the left bank if `d = -1`.
+
+This is the **complete** tree of graph search (BFS with duplicate detection,
+`--explore-all`): from `[3, 3, 1]` at depth 0 to the goal `[0, 0, 0]` at
+depth 11, with the 11-crossing solution in thick green. The 14 expanded nodes
+are numbered in the order BFS expanded them. Red nodes are killed: the
+crossing would leave missionaries outnumbered (the caption names the bank),
+so they are never expanded. Light-blue nodes are expanded but have no new
+child (every crossing leads to an unsafe or repeated state). The 16
+repeated-state leaves (crossings back to a state already generated) are left
+out of the drawing for readability; the caption states this, and they are
+listed in the text tree below.
+
+Without duplicate detection the tree is infinite (every crossing can be
+undone); up to depth 11 it already has 30,641 nodes.
+
+How to read the diagrams (the legend is also printed in each image):
+green = processed (expanded) node, blue frame = initial state, gold = goal
+node, red = killed node (constraint violated, with the reason underneath),
+light blue = no new child possible (dead end), grey dashed = repeated state
+(already generated), white = generated but not expanded (the search stopped
+first), white dashed box = omitted branch with its node count. The orange
+number on a node is the order in which the search expanded it; thick green
+arrows are the solution path; the ruler on the left gives the depth; edge
+labels are the actions.
+
+<details>
+<summary>Same tree as text, including the 16 repeated states</summary>
 
 ```
 [0] d=0 (3,3,L) 3M3C [boat] ~~~       0M0C  (INITIAL; on solution path)
@@ -254,8 +221,10 @@ The complete 49-node tree as text (`--explore-all --tree-depth 11 --tree-nodes 6
 |   |-- [10] d=2 1M0C to L -> (3,2,L) 3M2C [boat] ~~~       0M1C  (duplicate; state already generated at depth 2)
 |   `-- [11] d=2 1M1C to L -> (3,3,L) 3M3C [boat] ~~~       0M0C  (duplicate; state already generated at depth 0)
 `-- [5] d=1 2M0C to R -> (1,3,R) 1M3C       ~~~ [boat] 2M0C  (invalid; left bank: 3 cannibals > 1 missionaries)
-(Complete tree: 49 nodes.)
+(Complete tree: all 49 nodes shown.)
 ```
+
+</details>
 
 ## 13. Complexity Analysis
 

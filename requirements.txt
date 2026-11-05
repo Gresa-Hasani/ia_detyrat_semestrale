@@ -1,2 +1,5 @@
 # Testing
 pytest>=8.0
+
+# Optional: Pillow, only for the PNG export of search-tree diagrams (--graph).
+# pillow>=10.0

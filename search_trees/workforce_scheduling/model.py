@@ -248,7 +248,7 @@ class RotatingWorkforce:
         return " | ".join("".join(row) for row in self.schedule_rows(state))
 
     def format_label(self, state: State) -> str:
-        return "<br/>".join(" ".join(row) for row in self.schedule_rows(state))
+        return "<br/>".join(f"R{w + 1} " + " ".join(row) for w, row in enumerate(self.schedule_rows(state)))
 
     def format_schedule(self, state: State) -> str:
         cfg = self.config
@@ -267,3 +267,39 @@ class RotatingWorkforce:
             weeks = ["".join(rows[(e + k) % n]) for k in range(n)]
             lines.append(f"Employee {e + 1}: " + " | ".join(weeks))
         return "\n".join(lines)
+
+
+# ------------------------------------------------------------ diagram style
+SHIFT_CELLS = {
+    "D": ("#fed7aa", "#7c2d12"),
+    "N": ("#1e3a8a", "#ffffff"),
+    OFF: ("#e5e7eb", "#6b7280"),
+    "?": ("#ffffff", "#cbd5e1"),
+}
+RULE_NAMES = {"R1": "R1 demand", "R2": "R2 sequence", "R3": "R3 work run", "R4": "R4 night run",
+              "R5": "R5 workload", "R6": "R6 availability"}
+
+
+def diagram_style(problem: "RotatingWorkforce", title: str = "Rotating Workforce Scheduling search tree"):
+    """Look of the graphical diagram: each node is the base schedule as a colour grid."""
+    from ..graphics import DiagramStyle, NodeView
+
+    def view(state: State):
+        rows = tuple(tuple(problem.schedule_rows(state)[w]) for w in range(problem.config.employees))
+        return NodeView("grid", rows, cell_styles=SHIFT_CELLS)
+
+    def caption(node) -> str:
+        if node.status == "invalid" and node.reason:
+            return RULE_NAMES.get(node.reason.split()[0], node.reason.split()[0])
+        return ""
+
+    return DiagramStyle(
+        title=title,
+        view=view,
+        caption=caption,
+        notes=("Each node is the base schedule: rows R1-R3 (weeks of the rotation), columns Mon-Sun.",
+               "Edge label = one cell assignment, e.g. r2 Tue=N (row 2, Tuesday, night shift).",
+               "Red nodes show the rule they break (R1-R6, see docs/workforce_scheduling.md)."),
+        cell_legend=(("#fed7aa", "#7c2d12", "D", "day shift"), ("#1e3a8a", "#ffffff", "N", "night shift"),
+                     ("#e5e7eb", "#6b7280", "-", "day off"), ("#ffffff", "#cbd5e1", "?", "not assigned yet")),
+    )

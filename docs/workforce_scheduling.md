@@ -168,57 +168,45 @@ function EXPAND(state):
 
 | File | Responsibility |
 |---|---|
-| [`model.py`](../search_trees/workforce_scheduling/model.py) | `WorkforceConfig` (validated, JSON-loadable), `RotatingWorkforce` search problem, rendering, employee view |
+| [`model.py`](../search_trees/workforce_scheduling/model.py) | `WorkforceConfig` (validated, JSON-loadable), `RotatingWorkforce` search problem, rendering, employee view, diagram style |
 | [`validator.py`](../search_trees/workforce_scheduling/validator.py) | independent validator of complete schedules |
 
-Mermaid diagram (`python main.py workforce --tree-depth 3 --tree-nodes 20 --mermaid tree.md`;
-**partial tree**: 10 of 82 nodes). Rows of each node are the three rows of
-the base schedule, `?` = unassigned:
+### Search tree (DFS, partial)
 
-```mermaid
-flowchart TD
-    %% Rotating Workforce Scheduling search tree
-    n0["id 0, d=0, START<br/>? ? ? ? ? ? ?<br/>? ? ? ? ? ? ?<br/>? ? ? ? ? ? ?"]
-    n1["id 1, d=1<br/>D ? ? ? ? ? ?<br/>? ? ? ? ? ? ?<br/>? ? ? ? ? ? ?"]
-    n2["id 2, d=1, not expanded<br/>N ? ? ? ? ? ?<br/>? ? ? ? ? ? ?<br/>? ? ? ? ? ? ?"]
-    n3["id 3, d=1, not expanded<br/>- ? ? ? ? ? ?<br/>? ? ? ? ? ? ?<br/>? ? ? ? ? ? ?"]
-    n4["id 4, d=2, invalid<br/>D ? ? ? ? ? ?<br/>D ? ? ? ? ? ?<br/>? ? ? ? ? ? ?"]
-    n5["id 5, d=2<br/>D ? ? ? ? ? ?<br/>N ? ? ? ? ? ?<br/>? ? ? ? ? ? ?"]
-    n6["id 6, d=2, not expanded<br/>D ? ? ? ? ? ?<br/>- ? ? ? ? ? ?<br/>? ? ? ? ? ? ?"]
-    n7["id 7, d=3, invalid<br/>D ? ? ? ? ? ?<br/>N ? ? ? ? ? ?<br/>D ? ? ? ? ? ?"]
-    n8["id 8, d=3, invalid<br/>D ? ? ? ? ? ?<br/>N ? ? ? ? ? ?<br/>N ? ? ? ? ? ?"]
-    n9["id 9, d=3<br/>D ? ? ? ? ? ?<br/>N ? ? ? ? ? ?<br/>- ? ? ? ? ? ?"]
-    n0 -->|"r1 Mon=D"| n1
-    n0 -->|"r1 Mon=N"| n2
-    n0 -->|"r1 Mon=-"| n3
-    n1 -->|"r2 Mon=D"| n4
-    n1 -->|"r2 Mon=N"| n5
-    n1 -->|"r2 Mon=-"| n6
-    n5 -->|"r3 Mon=D"| n7
-    n5 -->|"r3 Mon=N"| n8
-    n5 -->|"r3 Mon=-"| n9
-    partialNote["Partial tree: 10 of 82 nodes shown (depth at most 3)"]
-    class partialNote note
-    classDef start fill:#dbeafe,stroke:#1d4ed8,color:#111
-    classDef goal fill:#dcfce7,stroke:#15803d,color:#111
-    classDef path stroke:#15803d,stroke-width:3px
-    classDef duplicate fill:#f3f4f6,stroke:#9ca3af,color:#555,stroke-dasharray:4 3
-    classDef invalid fill:#fee2e2,stroke:#b91c1c,color:#111
-    classDef cut fill:#fef9c3,stroke:#a16207,color:#111
-    classDef note fill:#ffffff,stroke:#ffffff,color:#555
-    class n0 start
-    class n1 path
-    class n2 cut
-    class n3 cut
-    class n4 invalid
-    class n5 path
-    class n6 cut
-    class n7 invalid
-    class n8 invalid
-    class n9 path
-```
+![Rotating Workforce Scheduling search tree](assets/search_trees/workforce_scheduling_tree.svg)
 
-The same view as text:
+Files: [SVG](assets/search_trees/workforce_scheduling_tree.svg) ·
+[PNG](assets/search_trees/workforce_scheduling_tree.png) ·
+[Graphviz DOT](assets/search_trees/workforce_scheduling_tree.dot) — generated with
+`python main.py workforce --tree-depth 2 --tree-nodes 20 --graph docs/assets/search_trees/workforce_scheduling_tree`.
+
+Each node is the base schedule as a colour grid: rows R1–R3 (the weeks of the
+rotation), columns Monday–Sunday; orange `D` = day shift, dark blue `N` =
+night shift, grey `-` = day off, white `?` = not assigned yet. An edge assigns
+one cell, e.g. `r2 Tue=N`.
+
+This is a **partial** view of the 82-node DFS tree: every node up to depth 2,
+plus the complete solution path from the empty schedule to the first complete
+schedule (depth 21) and all three alternatives at every step (64 nodes
+drawn). Red nodes break a rule, named underneath (R1 demand, R2 sequence,
+R3 work run, R4 night run, R6 availability). White nodes are alternatives DFS
+generated but never needed to expand. Node 17 at depth 16 was expanded and
+failed; its 18 descendants (expansions 18–22) are summarised by the dashed
+"18 more nodes not drawn" box, which is why the numbering jumps from 17 to 23.
+The whole tree of all 1,864 schedules has 30,910 nodes and is not drawn.
+
+How to read the diagrams (the legend is also printed in each image):
+green = processed (expanded) node, blue frame = initial state, gold = goal
+node, red = killed node (constraint violated, with the reason underneath),
+light blue = no new child possible (dead end), grey dashed = repeated state
+(already generated), white = generated but not expanded (the search stopped
+first), white dashed box = omitted branch with its node count. The orange
+number on a node is the order in which the search expanded it; thick green
+arrows are the solution path; the ruler on the left gives the depth; edge
+labels are the actions.
+
+<details>
+<summary>Same view as text</summary>
 
 ```
 [0] d=0 ??????? | ??????? | ???????  (INITIAL; on solution path)
@@ -228,11 +216,68 @@ The same view as text:
 |   |   |-- [7] d=3 r3 Mon=D -> D?????? | N?????? | D??????  (invalid; R1 demand: more than 1 D on day 1)
 |   |   |-- [8] d=3 r3 Mon=N -> D?????? | N?????? | N??????  (invalid; R1 demand: more than 1 N on day 1)
 |   |   `-- [9] d=3 r3 Mon=- -> D?????? | N?????? | -??????  (on solution path)
+|   |       |-- [10] d=4 r1 Tue=D -> DD????? | N?????? | -??????  (on solution path)
+|   |       |   |-- [13] d=5 r2 Tue=D -> DD????? | ND????? | -??????  (invalid; R1 demand: more than 1 D on day 2)
+|   |       |   |-- [14] d=5 r2 Tue=N -> DD????? | NN????? | -??????  (on solution path)
+|   |       |   |   |-- [16] d=6 r3 Tue=D -> DD????? | NN????? | -D?????  (invalid; R1 demand: more than 1 D on day 2)
+|   |       |   |   |-- [17] d=6 r3 Tue=N -> DD????? | NN????? | -N?????  (invalid; R1 demand: more than 1 N on day 2)
+|   |       |   |   `-- [18] d=6 r3 Tue=- -> DD????? | NN????? | --?????  (on solution path)
+|   |       |   |       |-- [19] d=7 r1 Wed=D -> DDD???? | NN????? | --?????  (on solution path)
+|   |       |   |       |   |-- [22] d=8 r2 Wed=D -> DDD???? | NND???? | --?????  (invalid; R1 demand: more than 1 D on day 3)
+|   |       |   |       |   |-- [23] d=8 r2 Wed=N -> DDD???? | NNN???? | --?????  (invalid; R4 more than 2 consecutive N shifts)
+|   |       |   |       |   `-- [24] d=8 r2 Wed=- -> DDD???? | NN-???? | --?????  (on solution path)
+|   |       |   |       |       |-- [25] d=9 r3 Wed=D -> DDD???? | NN-???? | --D????  (invalid; R1 demand: more than 1 D on day 3)
+|   |       |   |       |       |-- [26] d=9 r3 Wed=N -> DDD???? | NN-???? | --N????  (on solution path)
+|   |       |   |       |       |   |-- [28] d=10 r1 Thu=D -> DDDD??? | NN-???? | --N????  (on solution path)
+|   |       |   |       |       |   |   |-- [31] d=11 r2 Thu=D -> DDDD??? | NN-D??? | --N????  (invalid; R1 demand: more than 1 D on day 4)
+|   |       |   |       |       |   |   |-- [32] d=11 r2 Thu=N -> DDDD??? | NN-N??? | --N????  (on solution path)
+|   |       |   |       |       |   |   |   |-- [34] d=12 r3 Thu=D -> DDDD??? | NN-N??? | --ND???  (invalid; R1 demand: more than 1 D on day 4)
+|   |       |   |       |       |   |   |   |-- [35] d=12 r3 Thu=N -> DDDD??? | NN-N??? | --NN???  (invalid; R1 demand: more than 1 N on day 4)
+|   |       |   |       |       |   |   |   `-- [36] d=12 r3 Thu=- -> DDDD??? | NN-N??? | --N-???  (on solution path)
+|   |       |   |       |       |   |   |       |-- [37] d=13 r1 Fri=D -> DDDDD?? | NN-N??? | --N-???  (invalid; R3 more than 4 consecutive working days)
+|   |       |   |       |       |   |   |       |-- [38] d=13 r1 Fri=N -> DDDDN?? | NN-N??? | --N-???  (invalid; R3 more than 4 consecutive working days)
+|   |       |   |       |       |   |   |       `-- [39] d=13 r1 Fri=- -> DDDD-?? | NN-N??? | --N-???  (on solution path)
+|   |       |   |       |       |   |   |           |-- [40] d=14 r2 Fri=D -> DDDD-?? | NN-ND?? | --N-???  (invalid; R2 forbidden sequence N->D)
+|   |       |   |       |       |   |   |           |-- [41] d=14 r2 Fri=N -> DDDD-?? | NN-NN?? | --N-???  (on solution path)
+|   |       |   |       |       |   |   |           |   |-- [43] d=15 r3 Fri=D -> DDDD-?? | NN-NN?? | --N-D??  (on solution path)
+|   |       |   |       |       |   |   |           |   |   |-- [46] d=16 r1 Sat=D -> DDDD-D? | NN-NN?? | --N-D??
+|   |       |   |       |       |   |   |           |   |   |   `-- ... 18 more nodes not drawn
+|   |       |   |       |       |   |   |           |   |   |-- [47] d=16 r1 Sat=N -> DDDD-N? | NN-NN?? | --N-D??  (invalid; R1 demand: more than 0 N on day 6)
+|   |       |   |       |       |   |   |           |   |   `-- [48] d=16 r1 Sat=- -> DDDD--? | NN-NN?? | --N-D??  (on solution path)
+|   |       |   |       |       |   |   |           |   |       |-- [67] d=17 r2 Sat=D -> DDDD--? | NN-NND? | --N-D??  (invalid; R2 forbidden sequence N->D)
+|   |       |   |       |       |   |   |           |   |       |-- [68] d=17 r2 Sat=N -> DDDD--? | NN-NNN? | --N-D??  (invalid; R1 demand: more than 0 N on day 6)
+|   |       |   |       |       |   |   |           |   |       `-- [69] d=17 r2 Sat=- -> DDDD--? | NN-NN-? | --N-D??  (on solution path)
+|   |       |   |       |       |   |   |           |   |           |-- [70] d=18 r3 Sat=D -> DDDD--? | NN-NN-? | --N-DD?  (on solution path)
+|   |       |   |       |       |   |   |           |   |           |   |-- [73] d=19 r1 Sun=D -> DDDD--D | NN-NN-? | --N-DD?  (invalid; R6 availability: employee must be off)
+|   |       |   |       |       |   |   |           |   |           |   |-- [74] d=19 r1 Sun=N -> DDDD--N | NN-NN-? | --N-DD?  (invalid; R6 availability: employee must be off)
+|   |       |   |       |       |   |   |           |   |           |   `-- [75] d=19 r1 Sun=- -> DDDD--- | NN-NN-? | --N-DD?  (on solution path)
+|   |       |   |       |       |   |   |           |   |           |       |-- [76] d=20 r2 Sun=D -> DDDD--- | NN-NN-D | --N-DD?  (on solution path)
+|   |       |   |       |       |   |   |           |   |           |       |   |-- [79] d=21 r3 Sun=D -> DDDD--- | NN-NN-D | --N-DDD  (invalid; R1 demand: more than 1 D on day 7)
+|   |       |   |       |       |   |   |           |   |           |       |   |-- [80] d=21 r3 Sun=N -> DDDD--- | NN-NN-D | --N-DDN  (invalid; R1 demand: more than 0 N on day 7)
+|   |       |   |       |       |   |   |           |   |           |       |   `-- [81] d=21 r3 Sun=- -> DDDD--- | NN-NN-D | --N-DD-  (GOAL)
+|   |       |   |       |       |   |   |           |   |           |       |-- [77] d=20 r2 Sun=N -> DDDD--- | NN-NN-N | --N-DD?  (invalid; R1 demand: more than 0 N on day 7)
+|   |       |   |       |       |   |   |           |   |           |       `-- [78] d=20 r2 Sun=- -> DDDD--- | NN-NN-- | --N-DD?  (not expanded)
+|   |       |   |       |       |   |   |           |   |           |-- [71] d=18 r3 Sat=N -> DDDD--? | NN-NN-? | --N-DN?  (invalid; R1 demand: more than 0 N on day 6)
+|   |       |   |       |       |   |   |           |   |           `-- [72] d=18 r3 Sat=- -> DDDD--? | NN-NN-? | --N-D-?  (invalid; R1 demand: day 6 would be understaffed)
+|   |       |   |       |       |   |   |           |   |-- [44] d=15 r3 Fri=N -> DDDD-?? | NN-NN?? | --N-N??  (invalid; R1 demand: more than 1 N on day 5)
+|   |       |   |       |       |   |   |           |   `-- [45] d=15 r3 Fri=- -> DDDD-?? | NN-NN?? | --N--??  (invalid; R1 demand: day 5 would be understaffed)
+|   |       |   |       |       |   |   |           `-- [42] d=14 r2 Fri=- -> DDDD-?? | NN-N-?? | --N-???  (invalid; R1 demand: day 5 would be understaffed)
+|   |       |   |       |       |   |   `-- [33] d=11 r2 Thu=- -> DDDD??? | NN--??? | --N????  (not expanded)
+|   |       |   |       |       |   |-- [29] d=10 r1 Thu=N -> DDDN??? | NN-???? | --N????  (not expanded)
+|   |       |   |       |       |   `-- [30] d=10 r1 Thu=- -> DDD-??? | NN-???? | --N????  (not expanded)
+|   |       |   |       |       `-- [27] d=9 r3 Wed=- -> DDD???? | NN-???? | ---????  (invalid; R1 demand: day 3 would be understaffed)
+|   |       |   |       |-- [20] d=7 r1 Wed=N -> DDN???? | NN????? | --?????  (not expanded)
+|   |       |   |       `-- [21] d=7 r1 Wed=- -> DD-???? | NN????? | --?????  (not expanded)
+|   |       |   `-- [15] d=5 r2 Tue=- -> DD????? | N-????? | -??????  (not expanded)
+|   |       |-- [11] d=4 r1 Tue=N -> DN????? | N?????? | -??????  (not expanded)
+|   |       `-- [12] d=4 r1 Tue=- -> D-????? | N?????? | -??????  (not expanded)
 |   `-- [6] d=2 r2 Mon=- -> D?????? | -?????? | ???????  (not expanded)
 |-- [2] d=1 r1 Mon=N -> N?????? | ??????? | ???????  (not expanded)
 `-- [3] d=1 r1 Mon=- -> -?????? | ??????? | ???????  (not expanded)
-(Partial view: 10 of 82 nodes, depth <= 3; 72 nodes not shown.)
+(Partial tree: 64 of 82 nodes shown (depth at most 2 plus the solution path).)
 ```
+
+</details>
 
 ## 13. Complexity Analysis
 

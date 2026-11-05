@@ -142,10 +142,27 @@ class TestVisualization:
         assert "invalid; blocked" in text and "GOAL" in text and "duplicate" in text
         assert "(Complete tree:" in text
 
-    def test_text_tree_is_depth_limited(self):
+    def test_text_tree_is_depth_limited_without_solution_path(self):
         tree = build_search_tree(ToyGraph(), "bfs")
-        text = render_text(tree, str, max_depth=1, max_nodes=50)
-        assert "d=2" not in text and "Partial view" in text
+        text = render_text(tree, str, max_depth=1, max_nodes=50, include_solution_path=False)
+        assert "d=2" not in text and "Partial tree" in text and "GOAL" not in text
+        assert "... 2 more nodes not drawn" in text        # B's children A (dup) and D
+
+    def test_solution_path_is_always_drawn_to_the_goal(self):
+        tree = build_search_tree(ToyGraph(), "bfs")
+        text = render_text(tree, str, max_depth=0, max_nodes=50)
+        for node in tree.solution_path():
+            assert f"[{node.id}] d={node.depth}" in text
+        assert "GOAL" in text and "plus the solution path" in text
+        # alternatives at every step of the path are drawn too (A's invalid move X)
+        assert "invalid; blocked" in text
+
+    def test_omitted_branches_are_counted(self):
+        tree = build_search_tree(ToyGraph(), "bfs", stop_at_goal=False)
+        text = render_text(tree, str, max_depth=1, max_nodes=50, include_solution_path=False)
+        shown = text.count("] d=")
+        hidden = sum(int(line.split("... ")[1].split()[0]) for line in text.splitlines() if "more node" in line)
+        assert shown + hidden == len(tree.nodes)
 
     def test_mermaid_structure(self):
         tree = build_search_tree(ToyGraph(), "bfs", stop_at_goal=False)
@@ -155,11 +172,17 @@ class TestVisualization:
         edges = [l for l in lines if "-->" in l]
         assert len(edges) == len(tree.nodes) - 1
         assert '-->|"ab"|' in diagram
-        assert "class n0 start" in diagram and "class partialNote" not in diagram
+        assert "class n0 start" in diagram and "Complete tree: all" in diagram
+        assert "-.->" not in diagram                          # nothing omitted
         for status_class in ("goal", "duplicate", "invalid", "path"):
             assert f" {status_class}" in diagram
+        assert "<i>blocked</i>" in diagram                    # reason of the invalid node
 
-    def test_mermaid_partial_note(self):
+    def test_mermaid_partial_note_and_omitted_markers(self):
         tree = build_search_tree(ToyGraph(), "bfs")
-        diagram = render_mermaid(tree, str, max_depth=1, max_nodes=50)
-        assert "Partial tree:" in diagram and "depth at most 1" in diagram
+        diagram = render_mermaid(tree, str, max_depth=1, max_nodes=50, include_solution_path=False)
+        assert "Partial tree:" in diagram and "depth at most 1)" in diagram
+        # B (id 1) hides A (duplicate), D and G; C (id 2) hides D (duplicate) and E.
+        assert 'more1["... 3 more nodes not drawn"]' in diagram and "n1 -.-> more1" in diagram
+        assert 'more2["... 2 more nodes not drawn"]' in diagram
+        assert "class more1 omitted" in diagram

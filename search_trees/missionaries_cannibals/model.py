@@ -109,3 +109,41 @@ class MissionariesCannibals:
     def all_states(self) -> list[State]:
         return [(m, c, b) for m in range(self.missionaries + 1) for c in range(self.cannibals + 1)
                 for b in (1, 0)]
+
+
+# ------------------------------------------------------------ diagram style
+def _crossing_view(state: State):
+    from ..graphics import NodeView
+    m, c, b = state
+    return NodeView("ellipse", text=f"[{m}, {c}, {b}]")
+
+
+def _crossing_label(action: str) -> str:
+    """'0M2C to R' -> '[0 2 1]' (1 = to the right bank, -1 = to the left bank)."""
+    import re
+    match = re.fullmatch(r"(\d+)M(\d+)C to ([LR])", action)
+    if not match:
+        return action
+    dm, dc, side = match.groups()
+    return f"[{dm} {dc} {1 if side == 'R' else -1}]"
+
+
+def _crossing_caption(node) -> str:
+    if node.status == "invalid":
+        return "left bank unsafe" if node.reason.startswith("left") else "right bank unsafe"
+    return ""
+
+
+def diagram_style(title: str = "Missionaries and Cannibals search tree"):
+    """Look of the graphical diagram: [m, c, b] ellipses, [x y d] edges, duplicates hidden."""
+    from ..graphics import DiagramStyle
+    return DiagramStyle(
+        title=title,
+        view=_crossing_view,
+        edge_label=_crossing_label,
+        caption=_crossing_caption,
+        notes=("Node [m, c, b]: m, c = missionaries and cannibals on the left bank;",
+               "b = 1: boat on the left bank, b = 0: boat on the right bank.",
+               "Edge [x y d]: x missionaries and y cannibals cross; d = 1 to the right bank, d = -1 to the left bank."),
+        hide_duplicates=True,
+    )

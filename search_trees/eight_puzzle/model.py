@@ -130,3 +130,29 @@ TOTAL_BOARDS = 362_880
 REACHABLE_BOARDS = TOTAL_BOARDS // 2      # 181,440
 # Average branching factor over all blank positions: (4*2 + 4*3 + 1*4) / 9.
 AVERAGE_BRANCHING_FACTOR = (4 * 2 + 4 * 3 + 1 * 4) / 9
+
+
+# ------------------------------------------------------------ diagram style
+def _puzzle_view(board: Board):
+    from ..graphics import NodeView
+    rows = tuple(tuple(str(t) if t else "" for t in board[r * SIZE:(r + 1) * SIZE]) for r in range(SIZE))
+    return NodeView("grid", rows, cell_styles={"": ("#38bdf8", "#000000")})
+
+
+def _puzzle_caption(node) -> str:
+    if node.status == "duplicate" and node.reason:
+        return f"repeat of depth {node.reason.split()[-1]}"
+    return ""
+
+
+def diagram_style(title: str = "8-Puzzle search tree"):
+    """Look of the graphical diagram: each node is the 3x3 board, blank in blue."""
+    from ..graphics import DiagramStyle
+    return DiagramStyle(
+        title=title,
+        view=_puzzle_view,
+        caption=_puzzle_caption,
+        notes=("Each node is a board; the blue cell is the blank.",
+               "Edge label = direction in which the blank moves (Up, Down, Left, Right)."),
+        cell_legend=(("#38bdf8", "#000000", "", "blank cell"),),
+    )

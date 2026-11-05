@@ -1,0 +1,555 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1357" height="1102" viewBox="0 0 1357 1102" font-family="Consolas, 'DejaVu Sans Mono', 'Courier New', monospace" font-size="12">
+<title>8-Puzzle search tree (BFS)</title>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker><marker id="arrow-path" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#15803d"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="18" y="32" font-weight="bold" font-size="17" fill="#1e3a8a">8-Puzzle search tree (BFS)</text>
+<text x="18" y="50">Partial search tree: 20 of 54 nodes drawn (all nodes up to depth 2 plus the whole solution path and its alternatives).</text>
+<text x="18" y="68">Dashed boxes stand for branches that exist in the tree but are not drawn.</text>
+<text x="18" y="86">BFS search: 54 nodes generated, 20 expanded, goal at depth 5.</text>
+<rect x="18" y="98" width="1321" height="250" fill="#ffffff" stroke="#b91c1c" stroke-width="1"/>
+<text x="28" y="116" font-weight="bold" fill="#1e3a8a">Legend</text>
+<rect x="32" y="127" width="26" height="15" rx="7" fill="#bbf7d0" stroke="#1d4ed8" stroke-width="2"/>
+<text x="72" y="138">initial state (processed)</text>
+<rect x="32" y="147" width="26" height="15" rx="7" fill="#bbf7d0" stroke="#15803d" stroke-width="2"/>
+<text x="72" y="158">processed node (expanded)</text>
+<rect x="32" y="167" width="26" height="15" rx="7" fill="#facc15" stroke="#a16207" stroke-width="2"/>
+<text x="72" y="178">goal node</text>
+<rect x="32" y="187" width="26" height="15" rx="7" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 3"/>
+<text x="72" y="198">repeated state (already generated)</text>
+<rect x="32" y="207" width="26" height="15" rx="7" fill="#ffffff" stroke="#64748b" stroke-width="2"/>
+<text x="72" y="218">generated, not expanded</text>
+<rect x="32" y="227" width="26" height="15" rx="7" fill="#ffffff" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 3"/>
+<text x="72" y="238">omitted branch (not drawn)</text>
+<rect x="37" y="246" width="16" height="16" fill="#38bdf8" stroke="#64748b"/>
+<text x="45" y="259" text-anchor="middle" fill="#000000"></text>
+<text x="72" y="258">blank cell</text>
+<line x1="32" y1="274" x2="56" y2="274" stroke="#15803d" stroke-width="3" marker-end="url(#arrow-path)"/>
+<text x="72" y="278">solution path (thick green arrows)</text>
+<circle cx="45" cy="294" r="9" fill="#ea580c"/><text x="45" y="298" text-anchor="middle" fill="#ffffff" font-size="11">1</text>
+<text x="72" y="298">number = order in which the search expanded the node</text>
+<text x="42" y="318">Each node is a board; the blue cell is the blank.</text>
+<text x="42" y="338">Edge label = direction in which the blank moves (Up, Down, Left, Right).</text>
+<text x="18" y="396" fill="#64748b">depth 0</text>
+<text x="18" y="510" fill="#64748b">depth 1</text>
+<text x="18" y="624" fill="#64748b">depth 2</text>
+<text x="18" y="755" fill="#64748b">depth 3</text>
+<text x="18" y="886" fill="#64748b">depth 4</text>
+<text x="18" y="1017" fill="#64748b">depth 5</text>
+<polyline id="edge-n0-n1" points="895.7,446.0 895.7,452.0 568.5,495.0" fill="none" stroke="#15803d" stroke-width="3" marker-end="url(#arrow-path)"/>
+<rect x="640.0" y="471.1" width="20.6" height="15" fill="#ffffff"/>
+<text x="650.3" y="483.1" text-anchor="middle" font-size="11" fill="#15803d">Up</text>
+<polyline id="edge-n0-n2" points="895.7,446.0 895.7,452.0 996.7,495.0" fill="none" stroke="#334155" stroke-width="1.2" marker-end="url(#arrow)"/>
+<rect x="953.9" y="471.1" width="35.2" height="15" fill="#ffffff"/>
+<text x="971.5" y="483.1" text-anchor="middle" font-size="11" fill="#334155">Left</text>
+<polyline id="edge-n0-n3" points="895.7,446.0 895.7,452.0 1222.9,495.0" fill="none" stroke="#334155" stroke-width="1.2" marker-end="url(#arrow)"/>
+<rect x="1119.9" y="471.1" width="42.5" height="15" fill="#ffffff"/>
+<text x="1141.1" y="483.1" text-anchor="middle" font-size="11" fill="#334155">Right</text>
+<polyline id="edge-n1-n4" points="568.5,560.0 568.5,566.0 351.6,609.0" fill="none" stroke="#15803d" stroke-width="3" marker-end="url(#arrow-path)"/>
+<rect x="395.6" y="585.1" width="20.6" height="15" fill="#ffffff"/>
+<text x="405.9" y="597.1" text-anchor="middle" font-size="11" fill="#15803d">Up</text>
+<polyline id="edge-n1-n5" points="568.5,560.0 568.5,566.0 464.7,609.0" fill="none" stroke="#334155" stroke-width="1.2" marker-end="url(#arrow)"/>
+<rect x="473.1" y="585.1" width="35.2" height="15" fill="#ffffff"/>
+<text x="490.7" y="597.1" text-anchor="middle" font-size="11" fill="#334155">Down</text>
+<polyline id="edge-n1-n6" points="568.5,560.0 568.5,566.0 630.6,609.0" fill="none" stroke="#334155" stroke-width="1.2" marker-end="url(#arrow)"/>
+<rect x="597.5" y="585.1" width="35.2" height="15" fill="#ffffff"/>
+<text x="615.1" y="597.1" text-anchor="middle" font-size="11" fill="#334155">Left</text>
+<polyline id="edge-n1-n7" points="568.5,560.0 568.5,566.0 785.4,609.0" fill="none" stroke="#334155" stroke-width="1.2" marker-end="url(#arrow)"/>
+<rect x="709.9" y="585.1" width="42.5" height="15" fill="#ffffff"/>
+<text x="731.2" y="597.1" text-anchor="middle" font-size="11" fill="#334155">Right</text>
+<polyline id="edge-n2-n8" points="996.7,560.0 996.7,566.0 940.2,609.0" fill="none" stroke="#334155" stroke-width="1.2" marker-end="url(#arrow)"/>
+<rect x="944.0" y="585.1" width="20.6" height="15" fill="#ffffff"/>
+<text x="954.3" y="597.1" text-anchor="middle" font-size="11" fill="#334155">Up</text>
+<polyline id="edge-n2-n9" points="996.7,560.0 996.7,566.0 1053.3,609.0" fill="none" stroke="#334155" stroke-width="1.2" marker-end="url(#arrow)"/>
+<rect x="1017.9" y="585.1" width="42.5" height="15" fill="#ffffff"/>
+<text x="1039.2" y="597.1" text-anchor="middle" font-size="11" fill="#334155">Right</text>
+<polyline id="edge-n3-n10" points="1222.9,560.0 1222.9,566.0 1166.4,609.0" fill="none" stroke="#334155" stroke-width="1.2" marker-end="url(#arrow)"/>
+<rect x="1170.2" y="585.1" width="20.6" height="15" fill="#ffffff"/>
+<text x="1180.5" y="597.1" text-anchor="middle" font-size="11" fill="#334155">Up</text>
+<polyline id="edge-n3-n11" points="1222.9,560.0 1222.9,566.0 1279.5,609.0" fill="none" stroke="#334155" stroke-width="1.2" marker-end="url(#arrow)"/>
+<rect x="1247.7" y="585.1" width="35.2" height="15" fill="#ffffff"/>
+<text x="1265.3" y="597.1" text-anchor="middle" font-size="11" fill="#334155">Left</text>
+<polyline id="edge-n4-n12" points="351.6,674.0 351.6,697.0 193.1,740.0" fill="none" stroke="#334155" stroke-width="1.2" marker-end="url(#arrow)"/>
+<rect x="215.1" y="716.1" width="35.2" height="15" fill="#ffffff"/>
+<text x="232.7" y="728.1" text-anchor="middle" font-size="11" fill="#334155">Down</text>
+<polyline id="edge-n4-n13" points="351.6,674.0 351.6,697.0 306.2,740.0" fill="none" stroke="#15803d" stroke-width="3" marker-end="url(#arrow-path)"/>
+<rect x="299.9" y="716.1" width="35.2" height="15" fill="#ffffff"/>
+<text x="317.5" y="728.1" text-anchor="middle" font-size="11" fill="#15803d">Left</text>
+<polyline id="edge-n4-n14" points="351.6,674.0 351.6,697.0 510.2,740.0" fill="none" stroke="#334155" stroke-width="1.2" marker-end="url(#arrow)"/>
+<rect x="449.3" y="716.1" width="42.5" height="15" fill="#ffffff"/>
+<text x="470.6" y="728.1" text-anchor="middle" font-size="11" fill="#334155">Right</text>
+<polyline id="edge-n6-more6" points="630.6,674.0 630.6,697.0 630.6,740.0" fill="none" stroke="#334155" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arrow)"/>
+<polyline id="edge-n7-more7" points="785.4,674.0 785.4,697.0 785.4,740.0" fill="none" stroke="#334155" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arrow)"/>
+<polyline id="edge-n8-more8" points="940.2,674.0 940.2,697.0 940.2,740.0" fill="none" stroke="#334155" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arrow)"/>
+<polyline id="edge-n10-more10" points="1166.4,674.0 1166.4,697.0 1166.4,740.0" fill="none" stroke="#334155" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arrow)"/>
+<polyline id="edge-n13-n27" points="306.2,805.0 306.2,828.0 249.6,871.0" fill="none" stroke="#15803d" stroke-width="3" marker-end="url(#arrow-path)"/>
+<rect x="246.2" y="847.1" width="35.2" height="15" fill="#ffffff"/>
+<text x="263.8" y="859.1" text-anchor="middle" font-size="11" fill="#15803d">Down</text>
+<polyline id="edge-n13-n28" points="306.2,805.0 306.2,828.0 362.7,871.0" fill="none" stroke="#334155" stroke-width="1.2" marker-end="url(#arrow)"/>
+<rect x="327.3" y="847.1" width="42.5" height="15" fill="#ffffff"/>
+<text x="348.6" y="859.1" text-anchor="middle" font-size="11" fill="#334155">Right</text>
+<polyline id="edge-n14-more14" points="510.2,805.0 510.2,828.0 510.2,871.0" fill="none" stroke="#334155" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arrow)"/>
+<polyline id="edge-n27-n51" points="249.6,936.0 249.6,959.0 150.1,1002.0" fill="none" stroke="#334155" stroke-width="1.2" marker-end="url(#arrow)"/>
+<rect x="164.7" y="978.1" width="20.6" height="15" fill="#ffffff"/>
+<text x="175.0" y="990.1" text-anchor="middle" font-size="11" fill="#334155">Up</text>
+<polyline id="edge-n27-n52" points="249.6,936.0 249.6,959.0 263.2,1002.0" fill="none" stroke="#334155" stroke-width="1.2" marker-end="url(#arrow)"/>
+<rect x="242.2" y="978.1" width="35.2" height="15" fill="#ffffff"/>
+<text x="259.8" y="990.1" text-anchor="middle" font-size="11" fill="#334155">Down</text>
+<polyline id="edge-n27-n53" points="249.6,936.0 249.6,959.0 349.2,1002.0" fill="none" stroke="#15803d" stroke-width="3" marker-end="url(#arrow-path)"/>
+<rect x="303.0" y="978.1" width="42.5" height="15" fill="#ffffff"/>
+<text x="324.3" y="990.1" text-anchor="middle" font-size="11" fill="#15803d">Right</text>
+<g id="node-n0" data-kind="start">
+<rect x="863.7" y="382.0" width="64.0" height="64.0" rx="4" fill="#bbf7d0" stroke="#1d4ed8" stroke-width="3"/>
+<rect x="868.7" y="387.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="877.7" y="400.0" text-anchor="middle" fill="#000000">2</text>
+<rect x="886.7" y="387.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="895.7" y="400.0" text-anchor="middle" fill="#000000">8</text>
+<rect x="904.7" y="387.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="913.7" y="400.0" text-anchor="middle" fill="#000000">3</text>
+<rect x="868.7" y="405.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="877.7" y="418.0" text-anchor="middle" fill="#000000">1</text>
+<rect x="886.7" y="405.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="895.7" y="418.0" text-anchor="middle" fill="#000000">6</text>
+<rect x="904.7" y="405.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="913.7" y="418.0" text-anchor="middle" fill="#000000">4</text>
+<rect x="868.7" y="423.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="877.7" y="436.0" text-anchor="middle" fill="#000000">7</text>
+<rect x="886.7" y="423.0" width="18" height="18" fill="#38bdf8" stroke="#64748b" stroke-width="0.8"/>
+<rect x="904.7" y="423.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="913.7" y="436.0" text-anchor="middle" fill="#000000">5</text>
+<circle cx="861.7" cy="380.0" r="9" fill="#ea580c"/>
+<text x="861.7" y="384.0" text-anchor="middle" font-size="10" fill="#ffffff">1</text>
+</g>
+<g id="node-n1" data-kind="normal">
+<rect x="536.5" y="496.0" width="64.0" height="64.0" rx="4" fill="#bbf7d0" stroke="#15803d" stroke-width="3"/>
+<rect x="541.5" y="501.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="550.5" y="514.0" text-anchor="middle" fill="#000000">2</text>
+<rect x="559.5" y="501.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="568.5" y="514.0" text-anchor="middle" fill="#000000">8</text>
+<rect x="577.5" y="501.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="586.5" y="514.0" text-anchor="middle" fill="#000000">3</text>
+<rect x="541.5" y="519.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="550.5" y="532.0" text-anchor="middle" fill="#000000">1</text>
+<rect x="559.5" y="519.0" width="18" height="18" fill="#38bdf8" stroke="#64748b" stroke-width="0.8"/>
+<rect x="577.5" y="519.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="586.5" y="532.0" text-anchor="middle" fill="#000000">4</text>
+<rect x="541.5" y="537.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="550.5" y="550.0" text-anchor="middle" fill="#000000">7</text>
+<rect x="559.5" y="537.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="568.5" y="550.0" text-anchor="middle" fill="#000000">6</text>
+<rect x="577.5" y="537.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="586.5" y="550.0" text-anchor="middle" fill="#000000">5</text>
+<circle cx="534.5" cy="494.0" r="9" fill="#ea580c"/>
+<text x="534.5" y="498.0" text-anchor="middle" font-size="10" fill="#ffffff">2</text>
+</g>
+<g id="node-n2" data-kind="normal">
+<rect x="964.7" y="496.0" width="64.0" height="64.0" rx="4" fill="#bbf7d0" stroke="#15803d" stroke-width="1.6"/>
+<rect x="969.7" y="501.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="978.7" y="514.0" text-anchor="middle" fill="#000000">2</text>
+<rect x="987.7" y="501.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="996.7" y="514.0" text-anchor="middle" fill="#000000">8</text>
+<rect x="1005.7" y="501.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1014.7" y="514.0" text-anchor="middle" fill="#000000">3</text>
+<rect x="969.7" y="519.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="978.7" y="532.0" text-anchor="middle" fill="#000000">1</text>
+<rect x="987.7" y="519.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="996.7" y="532.0" text-anchor="middle" fill="#000000">6</text>
+<rect x="1005.7" y="519.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1014.7" y="532.0" text-anchor="middle" fill="#000000">4</text>
+<rect x="969.7" y="537.0" width="18" height="18" fill="#38bdf8" stroke="#64748b" stroke-width="0.8"/>
+<rect x="987.7" y="537.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="996.7" y="550.0" text-anchor="middle" fill="#000000">7</text>
+<rect x="1005.7" y="537.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1014.7" y="550.0" text-anchor="middle" fill="#000000">5</text>
+<circle cx="962.7" cy="494.0" r="9" fill="#ea580c"/>
+<text x="962.7" y="498.0" text-anchor="middle" font-size="10" fill="#ffffff">3</text>
+</g>
+<g id="node-n3" data-kind="normal">
+<rect x="1190.9" y="496.0" width="64.0" height="64.0" rx="4" fill="#bbf7d0" stroke="#15803d" stroke-width="1.6"/>
+<rect x="1195.9" y="501.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1204.9" y="514.0" text-anchor="middle" fill="#000000">2</text>
+<rect x="1213.9" y="501.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1222.9" y="514.0" text-anchor="middle" fill="#000000">8</text>
+<rect x="1231.9" y="501.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1240.9" y="514.0" text-anchor="middle" fill="#000000">3</text>
+<rect x="1195.9" y="519.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1204.9" y="532.0" text-anchor="middle" fill="#000000">1</text>
+<rect x="1213.9" y="519.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1222.9" y="532.0" text-anchor="middle" fill="#000000">6</text>
+<rect x="1231.9" y="519.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1240.9" y="532.0" text-anchor="middle" fill="#000000">4</text>
+<rect x="1195.9" y="537.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1204.9" y="550.0" text-anchor="middle" fill="#000000">7</text>
+<rect x="1213.9" y="537.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1222.9" y="550.0" text-anchor="middle" fill="#000000">5</text>
+<rect x="1231.9" y="537.0" width="18" height="18" fill="#38bdf8" stroke="#64748b" stroke-width="0.8"/>
+<circle cx="1188.9" cy="494.0" r="9" fill="#ea580c"/>
+<text x="1188.9" y="498.0" text-anchor="middle" font-size="10" fill="#ffffff">4</text>
+</g>
+<g id="node-n4" data-kind="normal">
+<rect x="319.6" y="610.0" width="64.0" height="64.0" rx="4" fill="#bbf7d0" stroke="#15803d" stroke-width="3"/>
+<rect x="324.6" y="615.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="333.6" y="628.0" text-anchor="middle" fill="#000000">2</text>
+<rect x="342.6" y="615.0" width="18" height="18" fill="#38bdf8" stroke="#64748b" stroke-width="0.8"/>
+<rect x="360.6" y="615.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="369.6" y="628.0" text-anchor="middle" fill="#000000">3</text>
+<rect x="324.6" y="633.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="333.6" y="646.0" text-anchor="middle" fill="#000000">1</text>
+<rect x="342.6" y="633.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="351.6" y="646.0" text-anchor="middle" fill="#000000">8</text>
+<rect x="360.6" y="633.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="369.6" y="646.0" text-anchor="middle" fill="#000000">4</text>
+<rect x="324.6" y="651.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="333.6" y="664.0" text-anchor="middle" fill="#000000">7</text>
+<rect x="342.6" y="651.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="351.6" y="664.0" text-anchor="middle" fill="#000000">6</text>
+<rect x="360.6" y="651.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="369.6" y="664.0" text-anchor="middle" fill="#000000">5</text>
+<circle cx="317.6" cy="608.0" r="9" fill="#ea580c"/>
+<text x="317.6" y="612.0" text-anchor="middle" font-size="10" fill="#ffffff">5</text>
+</g>
+<g id="node-n5" data-kind="duplicate">
+<rect x="432.7" y="610.0" width="64.0" height="64.0" rx="4" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="5 3"/>
+<rect x="437.7" y="615.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="446.7" y="628.0" text-anchor="middle" fill="#000000">2</text>
+<rect x="455.7" y="615.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="464.7" y="628.0" text-anchor="middle" fill="#000000">8</text>
+<rect x="473.7" y="615.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="482.7" y="628.0" text-anchor="middle" fill="#000000">3</text>
+<rect x="437.7" y="633.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="446.7" y="646.0" text-anchor="middle" fill="#000000">1</text>
+<rect x="455.7" y="633.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="464.7" y="646.0" text-anchor="middle" fill="#000000">6</text>
+<rect x="473.7" y="633.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="482.7" y="646.0" text-anchor="middle" fill="#000000">4</text>
+<rect x="437.7" y="651.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="446.7" y="664.0" text-anchor="middle" fill="#000000">7</text>
+<rect x="455.7" y="651.0" width="18" height="18" fill="#38bdf8" stroke="#64748b" stroke-width="0.8"/>
+<rect x="473.7" y="651.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="482.7" y="664.0" text-anchor="middle" fill="#000000">5</text>
+<text x="464.7" y="687.0" text-anchor="middle" font-size="11" fill="#7f1d1d">repeat of depth 0</text>
+</g>
+<g id="node-n6" data-kind="normal">
+<rect x="598.6" y="610.0" width="64.0" height="64.0" rx="4" fill="#bbf7d0" stroke="#15803d" stroke-width="1.6"/>
+<rect x="603.6" y="615.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="612.6" y="628.0" text-anchor="middle" fill="#000000">2</text>
+<rect x="621.6" y="615.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="630.6" y="628.0" text-anchor="middle" fill="#000000">8</text>
+<rect x="639.6" y="615.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="648.6" y="628.0" text-anchor="middle" fill="#000000">3</text>
+<rect x="603.6" y="633.0" width="18" height="18" fill="#38bdf8" stroke="#64748b" stroke-width="0.8"/>
+<rect x="621.6" y="633.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="630.6" y="646.0" text-anchor="middle" fill="#000000">1</text>
+<rect x="639.6" y="633.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="648.6" y="646.0" text-anchor="middle" fill="#000000">4</text>
+<rect x="603.6" y="651.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="612.6" y="664.0" text-anchor="middle" fill="#000000">7</text>
+<rect x="621.6" y="651.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="630.6" y="664.0" text-anchor="middle" fill="#000000">6</text>
+<rect x="639.6" y="651.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="648.6" y="664.0" text-anchor="middle" fill="#000000">5</text>
+<circle cx="596.6" cy="608.0" r="9" fill="#ea580c"/>
+<text x="596.6" y="612.0" text-anchor="middle" font-size="10" fill="#ffffff">6</text>
+</g>
+<g id="node-n7" data-kind="normal">
+<rect x="753.4" y="610.0" width="64.0" height="64.0" rx="4" fill="#bbf7d0" stroke="#15803d" stroke-width="1.6"/>
+<rect x="758.4" y="615.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="767.4" y="628.0" text-anchor="middle" fill="#000000">2</text>
+<rect x="776.4" y="615.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="785.4" y="628.0" text-anchor="middle" fill="#000000">8</text>
+<rect x="794.4" y="615.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="803.4" y="628.0" text-anchor="middle" fill="#000000">3</text>
+<rect x="758.4" y="633.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="767.4" y="646.0" text-anchor="middle" fill="#000000">1</text>
+<rect x="776.4" y="633.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="785.4" y="646.0" text-anchor="middle" fill="#000000">4</text>
+<rect x="794.4" y="633.0" width="18" height="18" fill="#38bdf8" stroke="#64748b" stroke-width="0.8"/>
+<rect x="758.4" y="651.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="767.4" y="664.0" text-anchor="middle" fill="#000000">7</text>
+<rect x="776.4" y="651.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="785.4" y="664.0" text-anchor="middle" fill="#000000">6</text>
+<rect x="794.4" y="651.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="803.4" y="664.0" text-anchor="middle" fill="#000000">5</text>
+<circle cx="751.4" cy="608.0" r="9" fill="#ea580c"/>
+<text x="751.4" y="612.0" text-anchor="middle" font-size="10" fill="#ffffff">7</text>
+</g>
+<g id="node-n8" data-kind="normal">
+<rect x="908.2" y="610.0" width="64.0" height="64.0" rx="4" fill="#bbf7d0" stroke="#15803d" stroke-width="1.6"/>
+<rect x="913.2" y="615.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="922.2" y="628.0" text-anchor="middle" fill="#000000">2</text>
+<rect x="931.2" y="615.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="940.2" y="628.0" text-anchor="middle" fill="#000000">8</text>
+<rect x="949.2" y="615.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="958.2" y="628.0" text-anchor="middle" fill="#000000">3</text>
+<rect x="913.2" y="633.0" width="18" height="18" fill="#38bdf8" stroke="#64748b" stroke-width="0.8"/>
+<rect x="931.2" y="633.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="940.2" y="646.0" text-anchor="middle" fill="#000000">6</text>
+<rect x="949.2" y="633.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="958.2" y="646.0" text-anchor="middle" fill="#000000">4</text>
+<rect x="913.2" y="651.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="922.2" y="664.0" text-anchor="middle" fill="#000000">1</text>
+<rect x="931.2" y="651.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="940.2" y="664.0" text-anchor="middle" fill="#000000">7</text>
+<rect x="949.2" y="651.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="958.2" y="664.0" text-anchor="middle" fill="#000000">5</text>
+<circle cx="906.2" cy="608.0" r="9" fill="#ea580c"/>
+<text x="906.2" y="612.0" text-anchor="middle" font-size="10" fill="#ffffff">8</text>
+</g>
+<g id="node-n9" data-kind="duplicate">
+<rect x="1021.3" y="610.0" width="64.0" height="64.0" rx="4" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="5 3"/>
+<rect x="1026.3" y="615.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1035.3" y="628.0" text-anchor="middle" fill="#000000">2</text>
+<rect x="1044.3" y="615.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1053.3" y="628.0" text-anchor="middle" fill="#000000">8</text>
+<rect x="1062.3" y="615.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1071.3" y="628.0" text-anchor="middle" fill="#000000">3</text>
+<rect x="1026.3" y="633.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1035.3" y="646.0" text-anchor="middle" fill="#000000">1</text>
+<rect x="1044.3" y="633.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1053.3" y="646.0" text-anchor="middle" fill="#000000">6</text>
+<rect x="1062.3" y="633.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1071.3" y="646.0" text-anchor="middle" fill="#000000">4</text>
+<rect x="1026.3" y="651.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1035.3" y="664.0" text-anchor="middle" fill="#000000">7</text>
+<rect x="1044.3" y="651.0" width="18" height="18" fill="#38bdf8" stroke="#64748b" stroke-width="0.8"/>
+<rect x="1062.3" y="651.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1071.3" y="664.0" text-anchor="middle" fill="#000000">5</text>
+<text x="1053.3" y="687.0" text-anchor="middle" font-size="11" fill="#7f1d1d">repeat of depth 0</text>
+</g>
+<g id="node-n10" data-kind="normal">
+<rect x="1134.4" y="610.0" width="64.0" height="64.0" rx="4" fill="#bbf7d0" stroke="#15803d" stroke-width="1.6"/>
+<rect x="1139.4" y="615.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1148.4" y="628.0" text-anchor="middle" fill="#000000">2</text>
+<rect x="1157.4" y="615.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1166.4" y="628.0" text-anchor="middle" fill="#000000">8</text>
+<rect x="1175.4" y="615.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1184.4" y="628.0" text-anchor="middle" fill="#000000">3</text>
+<rect x="1139.4" y="633.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1148.4" y="646.0" text-anchor="middle" fill="#000000">1</text>
+<rect x="1157.4" y="633.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1166.4" y="646.0" text-anchor="middle" fill="#000000">6</text>
+<rect x="1175.4" y="633.0" width="18" height="18" fill="#38bdf8" stroke="#64748b" stroke-width="0.8"/>
+<rect x="1139.4" y="651.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1148.4" y="664.0" text-anchor="middle" fill="#000000">7</text>
+<rect x="1157.4" y="651.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1166.4" y="664.0" text-anchor="middle" fill="#000000">5</text>
+<rect x="1175.4" y="651.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1184.4" y="664.0" text-anchor="middle" fill="#000000">4</text>
+<circle cx="1132.4" cy="608.0" r="9" fill="#ea580c"/>
+<text x="1132.4" y="612.0" text-anchor="middle" font-size="10" fill="#ffffff">9</text>
+</g>
+<g id="node-n11" data-kind="duplicate">
+<rect x="1247.5" y="610.0" width="64.0" height="64.0" rx="4" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="5 3"/>
+<rect x="1252.5" y="615.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1261.5" y="628.0" text-anchor="middle" fill="#000000">2</text>
+<rect x="1270.5" y="615.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1279.5" y="628.0" text-anchor="middle" fill="#000000">8</text>
+<rect x="1288.5" y="615.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1297.5" y="628.0" text-anchor="middle" fill="#000000">3</text>
+<rect x="1252.5" y="633.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1261.5" y="646.0" text-anchor="middle" fill="#000000">1</text>
+<rect x="1270.5" y="633.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1279.5" y="646.0" text-anchor="middle" fill="#000000">6</text>
+<rect x="1288.5" y="633.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1297.5" y="646.0" text-anchor="middle" fill="#000000">4</text>
+<rect x="1252.5" y="651.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1261.5" y="664.0" text-anchor="middle" fill="#000000">7</text>
+<rect x="1270.5" y="651.0" width="18" height="18" fill="#38bdf8" stroke="#64748b" stroke-width="0.8"/>
+<rect x="1288.5" y="651.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="1297.5" y="664.0" text-anchor="middle" fill="#000000">5</text>
+<text x="1279.5" y="687.0" text-anchor="middle" font-size="11" fill="#7f1d1d">repeat of depth 0</text>
+</g>
+<g id="node-n12" data-kind="duplicate">
+<rect x="161.1" y="741.0" width="64.0" height="64.0" rx="4" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="5 3"/>
+<rect x="166.1" y="746.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="175.1" y="759.0" text-anchor="middle" fill="#000000">2</text>
+<rect x="184.1" y="746.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="193.1" y="759.0" text-anchor="middle" fill="#000000">8</text>
+<rect x="202.1" y="746.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="211.1" y="759.0" text-anchor="middle" fill="#000000">3</text>
+<rect x="166.1" y="764.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="175.1" y="777.0" text-anchor="middle" fill="#000000">1</text>
+<rect x="184.1" y="764.0" width="18" height="18" fill="#38bdf8" stroke="#64748b" stroke-width="0.8"/>
+<rect x="202.1" y="764.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="211.1" y="777.0" text-anchor="middle" fill="#000000">4</text>
+<rect x="166.1" y="782.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="175.1" y="795.0" text-anchor="middle" fill="#000000">7</text>
+<rect x="184.1" y="782.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="193.1" y="795.0" text-anchor="middle" fill="#000000">6</text>
+<rect x="202.1" y="782.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="211.1" y="795.0" text-anchor="middle" fill="#000000">5</text>
+<text x="193.1" y="818.0" text-anchor="middle" font-size="11" fill="#7f1d1d">repeat of depth 1</text>
+</g>
+<g id="node-n13" data-kind="normal">
+<rect x="274.2" y="741.0" width="64.0" height="64.0" rx="4" fill="#bbf7d0" stroke="#15803d" stroke-width="3"/>
+<rect x="279.2" y="746.0" width="18" height="18" fill="#38bdf8" stroke="#64748b" stroke-width="0.8"/>
+<rect x="297.2" y="746.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="306.2" y="759.0" text-anchor="middle" fill="#000000">2</text>
+<rect x="315.2" y="746.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="324.2" y="759.0" text-anchor="middle" fill="#000000">3</text>
+<rect x="279.2" y="764.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="288.2" y="777.0" text-anchor="middle" fill="#000000">1</text>
+<rect x="297.2" y="764.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="306.2" y="777.0" text-anchor="middle" fill="#000000">8</text>
+<rect x="315.2" y="764.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="324.2" y="777.0" text-anchor="middle" fill="#000000">4</text>
+<rect x="279.2" y="782.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="288.2" y="795.0" text-anchor="middle" fill="#000000">7</text>
+<rect x="297.2" y="782.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="306.2" y="795.0" text-anchor="middle" fill="#000000">6</text>
+<rect x="315.2" y="782.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="324.2" y="795.0" text-anchor="middle" fill="#000000">5</text>
+<circle cx="272.2" cy="739.0" r="9" fill="#ea580c"/>
+<text x="272.2" y="743.0" text-anchor="middle" font-size="10" fill="#ffffff">10</text>
+</g>
+<g id="node-n14" data-kind="normal">
+<rect x="478.2" y="741.0" width="64.0" height="64.0" rx="4" fill="#bbf7d0" stroke="#15803d" stroke-width="1.6"/>
+<rect x="483.2" y="746.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="492.2" y="759.0" text-anchor="middle" fill="#000000">2</text>
+<rect x="501.2" y="746.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="510.2" y="759.0" text-anchor="middle" fill="#000000">3</text>
+<rect x="519.2" y="746.0" width="18" height="18" fill="#38bdf8" stroke="#64748b" stroke-width="0.8"/>
+<rect x="483.2" y="764.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="492.2" y="777.0" text-anchor="middle" fill="#000000">1</text>
+<rect x="501.2" y="764.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="510.2" y="777.0" text-anchor="middle" fill="#000000">8</text>
+<rect x="519.2" y="764.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="528.2" y="777.0" text-anchor="middle" fill="#000000">4</text>
+<rect x="483.2" y="782.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="492.2" y="795.0" text-anchor="middle" fill="#000000">7</text>
+<rect x="501.2" y="782.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="510.2" y="795.0" text-anchor="middle" fill="#000000">6</text>
+<rect x="519.2" y="782.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="528.2" y="795.0" text-anchor="middle" fill="#000000">5</text>
+<circle cx="476.2" cy="739.0" r="9" fill="#ea580c"/>
+<text x="476.2" y="743.0" text-anchor="middle" font-size="10" fill="#ffffff">11</text>
+</g>
+<g id="node-n27" data-kind="normal">
+<rect x="217.6" y="872.0" width="64.0" height="64.0" rx="4" fill="#bbf7d0" stroke="#15803d" stroke-width="3"/>
+<rect x="222.6" y="877.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="231.6" y="890.0" text-anchor="middle" fill="#000000">1</text>
+<rect x="240.6" y="877.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="249.6" y="890.0" text-anchor="middle" fill="#000000">2</text>
+<rect x="258.6" y="877.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="267.6" y="890.0" text-anchor="middle" fill="#000000">3</text>
+<rect x="222.6" y="895.0" width="18" height="18" fill="#38bdf8" stroke="#64748b" stroke-width="0.8"/>
+<rect x="240.6" y="895.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="249.6" y="908.0" text-anchor="middle" fill="#000000">8</text>
+<rect x="258.6" y="895.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="267.6" y="908.0" text-anchor="middle" fill="#000000">4</text>
+<rect x="222.6" y="913.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="231.6" y="926.0" text-anchor="middle" fill="#000000">7</text>
+<rect x="240.6" y="913.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="249.6" y="926.0" text-anchor="middle" fill="#000000">6</text>
+<rect x="258.6" y="913.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="267.6" y="926.0" text-anchor="middle" fill="#000000">5</text>
+<circle cx="215.6" cy="870.0" r="9" fill="#ea580c"/>
+<text x="215.6" y="874.0" text-anchor="middle" font-size="10" fill="#ffffff">20</text>
+</g>
+<g id="node-n28" data-kind="duplicate">
+<rect x="330.7" y="872.0" width="64.0" height="64.0" rx="4" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="5 3"/>
+<rect x="335.7" y="877.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="344.7" y="890.0" text-anchor="middle" fill="#000000">2</text>
+<rect x="353.7" y="877.0" width="18" height="18" fill="#38bdf8" stroke="#64748b" stroke-width="0.8"/>
+<rect x="371.7" y="877.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="380.7" y="890.0" text-anchor="middle" fill="#000000">3</text>
+<rect x="335.7" y="895.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="344.7" y="908.0" text-anchor="middle" fill="#000000">1</text>
+<rect x="353.7" y="895.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="362.7" y="908.0" text-anchor="middle" fill="#000000">8</text>
+<rect x="371.7" y="895.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="380.7" y="908.0" text-anchor="middle" fill="#000000">4</text>
+<rect x="335.7" y="913.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="344.7" y="926.0" text-anchor="middle" fill="#000000">7</text>
+<rect x="353.7" y="913.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="362.7" y="926.0" text-anchor="middle" fill="#000000">6</text>
+<rect x="371.7" y="913.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="380.7" y="926.0" text-anchor="middle" fill="#000000">5</text>
+<text x="362.7" y="949.0" text-anchor="middle" font-size="11" fill="#7f1d1d">repeat of depth 2</text>
+</g>
+<g id="node-n51" data-kind="duplicate">
+<rect x="118.1" y="1003.0" width="64.0" height="64.0" rx="4" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="5 3"/>
+<rect x="123.1" y="1008.0" width="18" height="18" fill="#38bdf8" stroke="#64748b" stroke-width="0.8"/>
+<rect x="141.1" y="1008.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="150.1" y="1021.0" text-anchor="middle" fill="#000000">2</text>
+<rect x="159.1" y="1008.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="168.1" y="1021.0" text-anchor="middle" fill="#000000">3</text>
+<rect x="123.1" y="1026.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="132.1" y="1039.0" text-anchor="middle" fill="#000000">1</text>
+<rect x="141.1" y="1026.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="150.1" y="1039.0" text-anchor="middle" fill="#000000">8</text>
+<rect x="159.1" y="1026.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="168.1" y="1039.0" text-anchor="middle" fill="#000000">4</text>
+<rect x="123.1" y="1044.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="132.1" y="1057.0" text-anchor="middle" fill="#000000">7</text>
+<rect x="141.1" y="1044.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="150.1" y="1057.0" text-anchor="middle" fill="#000000">6</text>
+<rect x="159.1" y="1044.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="168.1" y="1057.0" text-anchor="middle" fill="#000000">5</text>
+<text x="150.1" y="1080.0" text-anchor="middle" font-size="11" fill="#7f1d1d">repeat of depth 3</text>
+</g>
+<g id="node-n52" data-kind="cut">
+<rect x="231.2" y="1003.0" width="64.0" height="64.0" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.6"/>
+<rect x="236.2" y="1008.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="245.2" y="1021.0" text-anchor="middle" fill="#000000">1</text>
+<rect x="254.2" y="1008.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="263.2" y="1021.0" text-anchor="middle" fill="#000000">2</text>
+<rect x="272.2" y="1008.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="281.2" y="1021.0" text-anchor="middle" fill="#000000">3</text>
+<rect x="236.2" y="1026.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="245.2" y="1039.0" text-anchor="middle" fill="#000000">7</text>
+<rect x="254.2" y="1026.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="263.2" y="1039.0" text-anchor="middle" fill="#000000">8</text>
+<rect x="272.2" y="1026.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="281.2" y="1039.0" text-anchor="middle" fill="#000000">4</text>
+<rect x="236.2" y="1044.0" width="18" height="18" fill="#38bdf8" stroke="#64748b" stroke-width="0.8"/>
+<rect x="254.2" y="1044.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="263.2" y="1057.0" text-anchor="middle" fill="#000000">6</text>
+<rect x="272.2" y="1044.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="281.2" y="1057.0" text-anchor="middle" fill="#000000">5</text>
+</g>
+<g id="node-n53" data-kind="goal">
+<rect x="317.2" y="1003.0" width="64.0" height="64.0" rx="4" fill="#facc15" stroke="#a16207" stroke-width="3"/>
+<rect x="322.2" y="1008.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="331.2" y="1021.0" text-anchor="middle" fill="#000000">1</text>
+<rect x="340.2" y="1008.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="349.2" y="1021.0" text-anchor="middle" fill="#000000">2</text>
+<rect x="358.2" y="1008.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="367.2" y="1021.0" text-anchor="middle" fill="#000000">3</text>
+<rect x="322.2" y="1026.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="331.2" y="1039.0" text-anchor="middle" fill="#000000">8</text>
+<rect x="340.2" y="1026.0" width="18" height="18" fill="#38bdf8" stroke="#64748b" stroke-width="0.8"/>
+<rect x="358.2" y="1026.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="367.2" y="1039.0" text-anchor="middle" fill="#000000">4</text>
+<rect x="322.2" y="1044.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="331.2" y="1057.0" text-anchor="middle" fill="#000000">7</text>
+<rect x="340.2" y="1044.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="349.2" y="1057.0" text-anchor="middle" fill="#000000">6</text>
+<rect x="358.2" y="1044.0" width="18" height="18" fill="#ffffff" stroke="#64748b" stroke-width="0.8"/>
+<text x="367.2" y="1057.0" text-anchor="middle" fill="#000000">5</text>
+</g>
+<g id="node-more6" data-kind="omitted">
+<rect x="564.2" y="741.0" width="132.8" height="42.0" rx="5" fill="#ffffff" stroke="#94a3b8" stroke-width="1.3" stroke-dasharray="5 3"/>
+<text x="630.6" y="759.0" text-anchor="middle" fill="#475569">7 more nodes not</text>
+<text x="630.6" y="774.0" text-anchor="middle" fill="#475569">drawn</text>
+</g>
+<g id="node-more7" data-kind="omitted">
+<rect x="719.0" y="741.0" width="132.8" height="42.0" rx="5" fill="#ffffff" stroke="#94a3b8" stroke-width="1.3" stroke-dasharray="5 3"/>
+<text x="785.4" y="759.0" text-anchor="middle" fill="#475569">7 more nodes not</text>
+<text x="785.4" y="774.0" text-anchor="middle" fill="#475569">drawn</text>
+</g>
+<g id="node-more8" data-kind="omitted">
+<rect x="873.8" y="741.0" width="132.8" height="42.0" rx="5" fill="#ffffff" stroke="#94a3b8" stroke-width="1.3" stroke-dasharray="5 3"/>
+<text x="940.2" y="759.0" text-anchor="middle" fill="#475569">9 more nodes not</text>
+<text x="940.2" y="774.0" text-anchor="middle" fill="#475569">drawn</text>
+</g>
+<g id="node-more10" data-kind="omitted">
+<rect x="1100.0" y="741.0" width="132.8" height="42.0" rx="5" fill="#ffffff" stroke="#94a3b8" stroke-width="1.3" stroke-dasharray="5 3"/>
+<text x="1166.4" y="759.0" text-anchor="middle" fill="#475569">9 more nodes not</text>
+<text x="1166.4" y="774.0" text-anchor="middle" fill="#475569">drawn</text>
+</g>
+<g id="node-more14" data-kind="omitted">
+<rect x="443.8" y="872.0" width="132.8" height="42.0" rx="5" fill="#ffffff" stroke="#94a3b8" stroke-width="1.3" stroke-dasharray="5 3"/>
+<text x="510.2" y="890.0" text-anchor="middle" fill="#475569">2 more nodes not</text>
+<text x="510.2" y="905.0" text-anchor="middle" fill="#475569">drawn</text>
+</g>
+</svg>

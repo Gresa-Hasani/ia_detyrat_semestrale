@@ -72,6 +72,7 @@ class TreeNode(Generic[S]):
     status: str = FRONTIER
     reason: str = ""
     children: list[int] = field(default_factory=list)
+    order: int | None = None   # 1-based position in the expansion sequence (None if never expanded)
 
 
 @dataclass
@@ -223,6 +224,7 @@ def build_search_tree(
 
         node.status = EXPANDED
         stats.nodes_expanded += 1
+        node.order = stats.nodes_expanded
         new_children: list[int] = []
         for move in problem.expand(node.state):
             stats.transitions_examined += 1
