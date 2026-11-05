@@ -7,7 +7,7 @@ Artificial Intelligence 2026 — Assignment 1: Uninformed Search Techniques
 |---|---|---|---|
 | 1 | Social Golfers Problem | Depth First Search (DFS) with Backtracking | Implemented ([docs](docs/social_golfers.md)) |
 | 2 | Sudoku Solver (Easy / Medium / Hard) | Breadth First Search (BFS) with Backtracking | Implemented ([docs](docs/sudoku.md)) |
-| 3 | Latin Square | Iterative Deepening DFS (IDDFS) with Backtracking | Planned (Phase 3) |
+| 3 | Latin Square | Iterative Deepening DFS (IDDFS) with Backtracking | Implemented ([docs](docs/latin_square.md)) |
 | 4 | Search Trees: 8-Puzzle, Missionaries and Cannibals, Rotating Workforce Scheduling | Search-tree construction | Planned (Phase 4) |
 
 All search algorithms are implemented by hand; no external solver libraries
@@ -46,6 +46,13 @@ sudoku/                      Problem 2
   objective.py               objective function V(x) + E(x)
   landscape.py               theoretical search-landscape figures
   puzzles.py                 Easy / Medium / Hard puzzles, measured classification
+  report.py, cli.py          text output and command-line options
+latin_square/                Problem 3
+  model.py                   grid parsing, validation, reduced form
+  solver.py                  IDDFS with backtracking, per-iteration statistics
+  validator.py               independent Latin square validator
+  objective.py               objective function V(x) + E(x)
+  landscape.py               theoretical formulas, literature counts
   report.py, cli.py          text output and command-line options
 tests/                       pytest test suites
 docs/                        detailed documentation per problem
@@ -104,12 +111,35 @@ Options of `sudoku`:
 
 Exit codes: `0` solved and validated, `1` no solution / limit reached / validation failed, `2` invalid puzzle or parameters.
 
+```bash
+python main.py latin --help
+python main.py latin -n 5                               # reduced form (default)
+python main.py latin -n 4 --no-symmetry-breaking        # search the full empty grid
+python main.py latin -n 5 --no-symmetry-breaking --step 5
+python main.py latin -n 5 --count-solutions             # 56 reduced squares
+python main.py latin -n 3 --prefill ". . 1/. 1 ./1 . ." # completion (extension)
+```
+
+Options of `latin`:
+
+| Option | Meaning | Default |
+|---|---|---|
+| `-n`, `--size` | order of the square | 5 |
+| `--no-symmetry-breaking` | do not fix the first row and column | off |
+| `--prefill` | extension: complete a partial grid (rows separated by `/`, `.` = empty) | — |
+| `--step` | depth-limit increment (last limit is always the full depth) | 1 |
+| `--count-solutions` | count all squares in the last iteration | off |
+| `--max-nodes` | limit on nodes over all iterations (0 = unlimited) | 20,000,000 |
+| `--time-limit` | seconds (0 = unlimited) | 120 |
+| `--hide-iterations` | do not print the per-iteration table | off |
+
 ## Testing
 
 ```bash
 python -m pytest            # all tests
 python -m pytest -v tests/test_social_golfers.py
 python -m pytest -v tests/test_sudoku.py
+python -m pytest -v tests/test_latin_square.py
 ```
 
 ## Problem 1 — Social Golfers Problem
@@ -168,6 +198,34 @@ Measured results (MRV ordering, default limits):
 
 Full documentation: [docs/sudoku.md](docs/sudoku.md).
 
+## Problem 3 — Latin Square
+
+* **Model:** CSP with `n²` cell variables, domains `{1..n}`, `AllDifferent` on
+  every row and column.
+* **Objective:** minimise `Φ(x) = V(x) + E(x)` (repeated values in rows and
+  columns plus empty cells); `Φ = 0` exactly for a Latin square.
+* **Landscape:** theoretical counts (`n^(n²)`, `(n!)^n`, unpruned tree and
+  IDDFS sizes, literature counts `L(n)`, `R(n)`) and measured nodes per depth
+  limit, cutoffs, backtracks, repeated-work ratio.
+* **Algorithm:** genuine IDDFS (depth limits 0, 1, 2, …, D), depth-limited DFS
+  with early rejection and explicit undo (backtracking); stops early when an
+  iteration exhausts its tree without a cutoff. Symmetry breaking (reduced
+  form) is on by default.
+* **Validation:** independent validator; exhaustive counts reproduce the known
+  numbers of Latin squares (576 for n = 4, 9,408 reduced squares for n = 6).
+
+Measured results (step 1):
+
+| n | Mode | Iterations | Nodes visited | Last iteration | Time |
+|---|---|---|---|---|---|
+| 3 | reduced | 5 | 19 | 6 | < 0.01 s |
+| 4 | reduced | 10 | 161 | 10 | < 0.01 s |
+| 5 | reduced | 17 | 4,914 | 29 | 0.02 s |
+| 6 | reduced | 26 | 1,194,077 | 52 | 10.2 s |
+| 5 | full grid | 26 | 13,505,923 | 38 | 115 s |
+
+Full documentation: [docs/latin_square.md](docs/latin_square.md).
+
 ## Known Limitations
 
 * Social Golfers: for 32 golfers, uninformed DFS finds 5 weeks; the known
@@ -176,3 +234,6 @@ Full documentation: [docs/sudoku.md](docs/sudoku.md).
 * Sudoku: BFS keeps a whole level of the search tree in memory; with
   row-major ordering the Hard puzzle needs about 426 MiB, and the 17-clue
   extra puzzle exceeds the default limits.
+* Latin Square: every goal lies at the maximum depth, so all IDDFS iterations
+  before the last are exhaustive; the reduced form works up to n = 6, the full
+  grid up to n = 5.

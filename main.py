@@ -4,6 +4,7 @@ Usage examples:
     python main.py golfers --groups 8 --size 4
     python main.py golfers -g 3 -p 2 --count-solutions
     python main.py sudoku --difficulty hard
+    python main.py latin -n 5
 """
 
 from __future__ import annotations
@@ -12,6 +13,7 @@ import argparse
 import sys
 
 from social_golfers import cli as golfers_cli
+from latin_square import cli as latin_cli
 from sudoku import cli as sudoku_cli
 
 
@@ -31,6 +33,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sudoku_cli.add_arguments(sudoku)
     sudoku.set_defaults(handler=sudoku_cli.run)
+
+    latin = problems.add_parser(
+        "latin", help="Latin Square generator (IDDFS with backtracking)"
+    )
+    latin_cli.add_arguments(latin)
+    latin.set_defaults(handler=latin_cli.run)
     return parser
 
 
